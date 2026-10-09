@@ -8,14 +8,18 @@ import {
 import { mkdtemp, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { errorCases } from '../fixtures/chat-errors';
 
 async function withChat(
   work: (app: ElectronApplication, chat: Page, overlay: Page) => Promise<void>,
+  entry = '.',
 ) {
   const profile = await mkdtemp(path.join(os.tmpdir(), 'paperclip-stream-'));
   let app: ElectronApplication | undefined;
   try {
-    app = await electron.launch({ args: ['.', `--user-data-dir=${profile}`] });
+    app = await electron.launch({
+      args: [entry, `--user-data-dir=${profile}`],
+    });
     const overlay = await app.firstWindow();
     const opened = app.waitForEvent('window');
     await overlay
@@ -146,4 +150,85 @@ test('denies overlay and malformed IPC; cancels on reload and close with clean r
     await send(fresh);
     await ready(fresh);
   });
+});
+
+test('every provider error has safe accessible recovery and a real mock retry', async () => {
+  // Ten complete error/retry flows; the normal per-operation assertions keep their limits.
+  test.setTimeout(60_000);
+  await withChat(async (app, chat, overlay) => {
+    const control = await app.evaluateHandle(
+      () =>
+        Reflect.get(globalThis, '__paperclipChatFault') as {
+          code: string | null;
+          chunks: number;
+          starts: number;
+          injected: number;
+        },
+    );
+    expect(await control.evaluate((state) => state.starts)).toBe(0);
+    let expectedStarts = 0;
+    let expectedFaults = 0;
+    for (const [code, expected] of Object.entries(errorCases)) {
+      await control.evaluate((state, fault) => {
+        state.code = fault;
+        state.chunks = 0;
+      }, code);
+      // The fault layer must not accidentally authorize the overlay.
+      expect(
+        await overlay.evaluate(async () => [
+          await window.companionWindow.chatStart({
+            run: 1,
+            prompt: 'denied',
+            scenario: 'reply',
+          }),
+          await window.companionWindow.chatNext(1),
+        ]),
+      ).toEqual([false, null]);
+      await send(chat);
+      const status = chat.locator('.chat-status');
+      await expect(status).toHaveText(expected.message);
+      await expect(status).toHaveAttribute('role', expected.role);
+      await expect(status).toHaveAttribute(
+        'aria-live',
+        expected.role === 'alert' ? 'assertive' : 'polite',
+      );
+      await expect(chat.locator('.sample p')).toHaveText('A pivot table ');
+      await expect(
+        chat.getByRole('button', { name: 'Stop', exact: true }),
+      ).toBeDisabled();
+      await expect(
+        chat.getByRole('button', { name: 'Retry', exact: true }),
+      ).toBeEnabled();
+      expectedStarts++;
+      expectedFaults++;
+      // Editing the draft is not permission to retry or start another request.
+      await chat.getByLabel('Your message').fill('Unsubmitted synthetic draft');
+      expect(
+        await control.evaluate((state) => ({
+          starts: state.starts,
+          injected: state.injected,
+        })),
+      ).toEqual({ starts: expectedStarts, injected: expectedFaults });
+      await chat.getByRole('button', { name: 'Retry', exact: true }).click();
+      await ready(chat);
+      expectedStarts++;
+      expect(
+        await control.evaluate((state) => ({
+          starts: state.starts,
+          injected: state.injected,
+          code: state.code,
+        })),
+      ).toEqual({
+        starts: expectedStarts,
+        injected: expectedFaults,
+        code: null,
+      });
+      await expect(
+        chat.getByRole('button', { name: 'Retry', exact: true }),
+      ).toBeDisabled();
+      await chat.getByRole('button', { name: 'Clear conversation' }).click();
+      await expect(chat.locator('.sample')).toHaveCount(0);
+    }
+    await control.dispose();
+  }, path.resolve('tests/e2e/chat-harness.cjs'));
 });

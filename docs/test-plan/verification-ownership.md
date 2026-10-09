@@ -45,3 +45,9 @@ checks are grouped in the existing P1-04 checklist. #28's physical tray-click re
 remains explicitly unconfirmed despite passing native callback tests in Windows
 CI and Donvan's local 18-test rerun. Do not repeatedly ask Donvan to rerun those same
 automated tests. G1 remains open; independent P2-01 contract/mock work can continue.
+
+P2 streaming PR #35 is now merged into main dd17091 with all required merged-main
+checks green. [P2 review](../evidence/P2-review.md) maps the already implemented
+P2-03/04 work and the remaining exhaustive native error acceptance in #36. G1
+physical evidence is still pending, so G2 baseline promotion remains open. No
+repeated routine manual checklist is needed for the mock/error matrix.
