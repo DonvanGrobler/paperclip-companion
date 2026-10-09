@@ -17,3 +17,13 @@ Optional asset authoring uses Python 3 and **Pillow 12.3.0**, already available 
 Created independently for this repository on 9 October 2026 through code authored by the development assistant at the maintainer's request. Text, geometry, color choices and glyph bitmaps are explicitly present in the generator. No external font is loaded. Source/output follow the project's pending original-code licensing decision; no MIT adoption is implied.
 
 The optional Pillow authoring tool is MIT-CMU licensed ([upstream license](https://github.com/python-pillow/Pillow/blob/12.3.0/LICENSE)); the library itself is not copied into this repository or distributed with the app. Pixel rectangles are drawn from original input instructions. Final fixture provenance/license review remains part of G0; runtime redistribution notices are separate.
+
+## Complete chat error acceptance
+
+`chat-errors.ts` gives independent message, role and status expectations for all
+provider error codes plus INTERNAL. Its exhaustive type forces a new code to gain
+an acceptance case. Unit tests cover partial-response retention and explicit fresh
+retry; native Windows Electron tests use a separate test-only main-process entry
+point to inject one error after a real chunk, then retry through the real mock.
+The existing natural mock scripts remain tested separately. No fault switches are
+available in the production app. See [P2 review](../../docs/evidence/P2-review.md).

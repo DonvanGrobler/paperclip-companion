@@ -19,7 +19,7 @@ export const CHAT_ERRORS: Record<ChatErrorCode, string> = {
     'Enter a message of 1–2,000 characters. Images are unavailable in this preview.',
   NOT_CONNECTED:
     'The mock provider is disconnected. Retry to start a fresh local session.',
-  BUSY: 'A reply is already running. Stop it before retrying.',
+  BUSY: 'The provider was busy. Retry to start a fresh response.',
   TEXT_UNSUPPORTED:
     'This provider cannot answer text questions. No other provider was selected.',
   VISION_UNSUPPORTED:
