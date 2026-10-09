@@ -1,7 +1,7 @@
 name: Scaffold
 on:
   push:
-    branches: [main, 'feat/p0-02-electron-scaffold']
+    branches: [main]
   pull_request:
 permissions:
   contents: read
