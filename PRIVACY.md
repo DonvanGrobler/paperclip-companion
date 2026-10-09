@@ -1,10 +1,10 @@
 # Privacy notice — local desktop preview
 
-Draft for review, 9 October 2026. This notice describes the P1 character, tray, local chat preview and shell preferences. Authentication and screen capture are not implemented.
+Draft for review, 9 October 2026. This notice describes the character, tray, P2 offline mock chat and shell preferences. Authentication and screen capture are not implemented.
 
 ## What the preview does
 
-The app displays bundled local HTML, JavaScript and CSS. The chat entry stays in renderer memory and receives a fixed local sample reply. There is no provider connection, screenshot function, microphone/camera feature or application-operated backend. It does not request your account credentials or send a question or screen image to an AI provider.
+The app displays bundled local HTML, JavaScript and CSS. On submission, the chat entry passes from renderer memory to transient main-process memory for a scripted offline mock reply. Stop, Clear, reload, closing chat or quitting cancels the active mock request. No real provider is connected. There is no screenshot function, microphone/camera feature or application-operated backend. It does not request your account credentials or send a question or screen image to an AI provider.
 
 The renderer uses a nonpersistent session, denies permission requests and blocks non-bundle requests, popups, downloads and navigation. The app does not initialize analytics, an updater or a crash-reporting service. Its startup failure diagnostic is a fixed error code without user content.
 

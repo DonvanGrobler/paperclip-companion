@@ -33,6 +33,7 @@ const m = vi.hoisted(() => {
     },
   };
 });
+vi.mock('../../src/main/chat-ipc', () => ({ installChatStream: vi.fn() }));
 vi.mock('../../src/main/display-recovery', () => ({
   installDisplayRecovery: vi.fn(),
   recoverWindow: vi.fn(),

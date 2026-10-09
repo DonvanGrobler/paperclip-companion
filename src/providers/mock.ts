@@ -29,7 +29,7 @@ export interface MockOptions {
   vision?: boolean;
 }
 
-/** Offline contract implementation only; UI wiring belongs to P2-02/03. */
+/** Offline scripted adapter; production callers are owned by main/chat-session. */
 export function createMockProvider(options: MockOptions = {}) {
   const scenario = options.scenario ?? 'text-success';
   const vision = options.vision ?? false;

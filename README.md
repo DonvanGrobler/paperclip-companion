@@ -4,7 +4,7 @@ An independent Windows-first desktop helper for user-initiated chat and single-s
 
 ## Test the current preview
 
-The main branch contains the character, tray and local chat preview. P1-04 preferences are under review. The historical [Windows 11 G0 walkthrough](docs/test-plan/G0-windows-walkthrough.md) pins the foundation candidate. For current changes use the exact commit and checklist linked in the active PR. [G0 is verified](docs/test-plan/G0-status.md); the desktop-shell gate G1 remains open.
+The preview contains the character, tray, saved shell preferences and offline mock chat. The historical [Windows 11 G0 walkthrough](docs/test-plan/G0-windows-walkthrough.md) pins the foundation candidate. For current changes use the exact commit and checklist linked in the active PR. [G0 is verified](docs/test-plan/G0-status.md); the desktop-shell gate G1 remains open.
 
 ## Run the foundation preview
 
@@ -15,7 +15,7 @@ npm ci
 npm start
 ```
 
-The app opens a paperclip-style placeholder character with tray access and a separate local chat preview. Screen capture and provider connections are not implemented. No third-party accounts are needed. There is no installer or signed release.
+The app opens a paperclip-style placeholder character with tray access and a separate local chat preview. Screen capture and real provider connections are not implemented. No third-party accounts are needed. There is no installer or signed release.
 
 npm start rebuilds the bundled renderer and main process before launching Electron. A desktop session is required. Windows 11 x64 is the intended initial target; interactive validation is tracked separately for each feature. No Windows 10, ARM64 or Linux product support is claimed.
 
@@ -57,16 +57,22 @@ Windows may put the icon under its hidden-icons arrow. Open chat is available in
 [Windows tray checklist](docs/test-plan/P1-02-windows.md). The character remains
 placeholder artwork, not the final nostalgic design.
 
-### Local chat preview (P1-03)
+### Offline mock chat (P1-03 / P2-02)
 
 Choose **Open chat** on the character or tray. The separate window demonstrates
-Send, Stop, Retry, Copy and Clear with a fixed local sample response. Select
-**Simulated error** to try recovery, then switch back to **Sample reply** and Retry.
-Enter sends and Shift+Enter adds a line. No AI is connected and nothing is sent.
+Send, Stop, Retry, Copy and Clear with a scripted response streamed from the
+main-process mock provider. The selected provider is shown explicitly. Preview
+scenarios include offline, expired sign-in, rate limit, images unsupported and
+provider cancellation. Switch back to **Sample reply** and Retry to recover.
+Stop preserves partial text; Retry starts a fresh response. Clear, reload, close
+and Quit cancel active work. There is no automatic retry or provider fallback.
+Enter sends and Shift+Enter adds a line. No AI or account is connected, no screen
+is captured and nothing leaves the computer. Prompt processing is in memory only.
 Only the latest exchange is retained while this window is open; closing or Clear
 removes it. Copied text remains on the system clipboard and may be retained by
 Windows clipboard history. Shell settings are saved separately; chat is not restored at startup.
-See the [Windows chat checklist](docs/test-plan/P1-03-windows.md).
+See [streaming evidence](docs/evidence/P2-02.md) and [IPC design](docs/adr/0013-main-chat-stream.md).
+Routine streaming and lifecycle checks run automatically on Windows CI.
 
 ### Saved shell preferences and display recovery (P1-04)
 
