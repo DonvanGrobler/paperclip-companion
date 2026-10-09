@@ -34,3 +34,9 @@ Disposition: **foundation development provenance review completed**, with no ide
 G0 is an actual tracked gate in **issue #18**, and remains **blocked only on required-check enforcement under the recorded G0 checklist**. The delegated security/provenance review and main-candidate test review are complete. Maintainer repository settings must require `scaffold-ubuntu-latest`, `scaffold-windows-latest`, `dependency-and-license-scan` and `secret-scan` on main. Follow [setup instructions](../test-plan/P0-04-quality-gates.md), then verify failed required checks prevent merging. The connector cannot write repository administration settings. No requirement was removed just to close the gate.
 
 P1-01 can proceed as exploratory development under DEVELOPMENT_PLAN section 4, while G0 remains open; no phase-baseline promotion is claimed. New overlay code/art gets its own review and Windows checklist.
+
+## Resolution — 9 October 2026, after branch protection was saved
+
+The maintainer enabled branch protection. A fresh GitHub branch response reports `protected: true`, `enforcement_level: everyone`, and exactly the four required GitHub Actions contexts. Existing Dependabot PR #16 has failed required checks and GitHub reports `mergeable_state: blocked`, despite a conflict-free merge (`mergeable: true`). No failing code was merged or bypass attempted. See the [recorded API evidence](G0-branch-enforcement.json). The detailed administration endpoint remains inaccessible (403), so unexposed flags are not claimed verified.
+
+This resolves the earlier process finding. **G0 passed** at foundation baseline `c8b53a78bfb41c06f53241b4d518f487432b2418`; issue #18 is closed. Existing main CI, delegated review and Windows evidence remain unchanged. Root license adoption and actual binary-distribution notices remain pre-release work. This documentation-only update requires formatting/link validation, not repeated Windows usability testing.
