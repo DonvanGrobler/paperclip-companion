@@ -72,7 +72,7 @@ test('bundled shell renders with a closed renderer boundary', async () => {
     expect(isolation).toEqual({
       require: 'undefined',
       process: 'undefined',
-      bridge: ['close'],
+      bridge: ['close', 'openChat', 'copyText'],
       close: 'function',
     });
     const blocked = await page.evaluate(async () => {
@@ -185,6 +185,97 @@ test('close hides the companion and app quit exits while hidden', async () => {
     await application.evaluate(({ app }) => app.quit());
     await closed;
     application = undefined;
+  } finally {
+    await application?.close();
+    await rm(profile, { recursive: true, force: true });
+  }
+});
+
+test('chat preview supports keyboard, cancellation, retry, copy and fresh reopen', async () => {
+  const profile = await mkdtemp(path.join(os.tmpdir(), 'paperclip-chat-'));
+  let application: ElectronApplication | undefined;
+  try {
+    application = await electron.launch({
+      args: ['.', `--user-data-dir=${profile}`],
+    });
+    const overlay = await application.firstWindow();
+    const opened = application.waitForEvent('window');
+    await overlay
+      .getByRole('button', { name: 'Open chat', exact: true })
+      .click();
+    const chat = await opened;
+    await expect(
+      chat.getByRole('heading', { name: 'Paperclip chat', exact: true }),
+    ).toBeVisible();
+    const input = chat.getByLabel('Your message');
+    await expect(input).toBeFocused();
+    await expect(
+      chat.getByRole('button', { name: 'Send preview' }),
+    ).toBeDisabled();
+    await overlay.evaluate(() => window.companionWindow.openChat());
+    expect(application.windows()).toHaveLength(2);
+    await input.fill('A synthetic question');
+    await input.press('Shift+Enter');
+    await expect(input).toHaveValue('A synthetic question\n');
+    await input.press('Enter');
+    await expect(chat.getByText('Preparing a sample reply…')).toBeVisible();
+    await chat.getByRole('button', { name: 'Stop', exact: true }).click();
+    await expect(chat.getByText('Stopped. No request was sent.')).toBeVisible();
+    await expect(input).toBeFocused();
+    await chat.getByRole('button', { name: 'Retry', exact: true }).click();
+    await expect(
+      chat.getByText('Sample reply ready.', { exact: true }),
+    ).toBeVisible();
+    await chat.getByRole('button', { name: 'Copy response' }).click();
+    await expect(
+      chat.getByText('Copied response.', { exact: true }),
+    ).toBeVisible();
+    expect(
+      await application.evaluate(
+        async ({ clipboard }) => await clipboard.readText(),
+      ),
+    ).toContain('local preview');
+    expect(
+      await overlay.evaluate(() => window.companionWindow.copyText('denied')),
+    ).toBe(false);
+    await chat.getByLabel('Preview scenario').selectOption('error');
+    await input.fill('<script>window.__injected = true</script>');
+    await input.press('Enter');
+    await expect(chat.getByRole('alert')).toContainText('Simulated error');
+    expect(
+      await chat.evaluate(() => Reflect.get(window, '__injected')),
+    ).toBeUndefined();
+    await chat.getByLabel('Preview scenario').selectOption('reply');
+    await chat.getByRole('button', { name: 'Retry', exact: true }).click();
+    await chat.getByRole('button', { name: 'Clear conversation' }).click();
+    await expect(
+      chat.getByText('What would you like help with?', { exact: true }),
+    ).toBeVisible();
+    await expect(input).toBeFocused();
+    expect(
+      await chat.evaluate(async () => {
+        try {
+          await fetch('https://example.com');
+          return false;
+        } catch {
+          return true;
+        }
+      }),
+    ).toBe(true);
+    expect(
+      await chat.evaluate(() => [
+        typeof Reflect.get(window, 'require'),
+        typeof Reflect.get(window, 'process'),
+      ]),
+    ).toEqual(['undefined', 'undefined']);
+    await chat.evaluate(() => window.open('https://example.com'));
+    expect(application.windows()).toHaveLength(2);
+    const closed = chat.waitForEvent('close');
+    await chat.getByRole('button', { name: 'Close chat' }).click();
+    await closed;
+    const reopened = application.waitForEvent('window');
+    await overlay.evaluate(() => window.companionWindow.openChat());
+    await expect((await reopened).getByLabel('Your message')).toHaveValue('');
   } finally {
     await application?.close();
     await rm(profile, { recursive: true, force: true });
