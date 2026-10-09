@@ -23,6 +23,7 @@ const mocks = vi.hoisted(() => {
   };
   return {
     installTray: vi.fn(),
+    openChat: vi.fn(),
     ipcMain: { on: vi.fn(), removeListener: vi.fn() },
     window,
     shellSession,
@@ -49,6 +50,9 @@ const mocks = vi.hoisted(() => {
   };
 });
 vi.mock('electron', () => mocks);
+vi.mock('../../src/main/chat-window', () => ({
+  createChatOpener: () => mocks.openChat,
+}));
 vi.mock('../../src/main/tray', () => ({ installTray: mocks.installTray }));
 vi.mock('node:fs/promises', () => ({ readFile: mocks.readFile }));
 
@@ -68,7 +72,10 @@ async function start() {
 describe('actual main-process wiring', () => {
   it('creates a sandboxed window with a narrow close bridge and closes cleanly', async () => {
     await start();
-    expect(mocks.installTray).toHaveBeenCalledWith(mocks.window);
+    expect(mocks.installTray).toHaveBeenCalledWith(
+      mocks.window,
+      mocks.openChat,
+    );
     expect(mocks.installTray.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.window.loadURL.mock.invocationCallOrder[0]!,
     );

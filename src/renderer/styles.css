@@ -179,3 +179,124 @@ h1 {
     animation: none;
   }
 }
+
+.bubble .hello {
+  padding: 5px 10px;
+  margin: 0 2px;
+}
+.chat-shell {
+  background: #f4f1e9;
+  height: 100vh;
+  overflow: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+}
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+.chat-header h1 {
+  font-size: 25px;
+}
+.eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  margin: 0 0 5px;
+  color: #215e55;
+  font-weight: 700;
+}
+.chat-shell button,
+.chat-shell select {
+  border: 1px solid #8baba0;
+  background: #fffdf6;
+  color: #233a44;
+  border-radius: 7px;
+  padding: 7px 10px;
+  font: inherit;
+}
+.chat-shell button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.chat-shell :focus-visible {
+  outline: 3px solid #b35815;
+  outline-offset: 2px;
+}
+.chat-notice {
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0;
+}
+.chat-options,
+.chat-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.chat-options {
+  font-size: 12px;
+}
+.conversation {
+  flex: 1 0 130px;
+  min-height: 130px;
+  overflow: auto;
+  border: 1px solid #c9d9ce;
+  border-radius: 10px;
+  background: #fffdf6;
+  padding: 14px;
+}
+.conversation article + article {
+  border-top: 1px solid #c9d9ce;
+  margin-top: 14px;
+  padding-top: 14px;
+}
+.conversation h2 {
+  font-size: 12px;
+  margin: 0;
+  color: #215e55;
+}
+.conversation p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+}
+.empty-chat {
+  color: #536b62;
+}
+.chat-status,
+.copy-status {
+  font-size: 12px;
+  margin: 0;
+}
+.chat-shell [role='alert'] {
+  color: #8b3212;
+}
+.chat-shell form {
+  display: grid;
+  gap: 7px;
+}
+.chat-shell textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 64px;
+  border: 1px solid #8baba0;
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+  color: #233a44;
+  background: white;
+}
+#message-help {
+  font-size: 11px;
+  margin: 0;
+}
+.chat-actions button[type='submit'] {
+  background: #215e55;
+  color: white;
+}

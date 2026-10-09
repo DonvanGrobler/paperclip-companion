@@ -28,7 +28,7 @@ const glyph = [
   '................',
 ].join('');
 
-export function installTray(window: BrowserWindow): void {
+export function installTray(window: BrowserWindow, openChat: () => void): void {
   let tray: Tray | undefined;
   let quitting = false;
   const show = () => {
@@ -47,7 +47,7 @@ export function installTray(window: BrowserWindow): void {
     tray.setToolTip('Paperclip Companion');
     tray.setContextMenu(
       Menu.buildFromTemplate([
-        { label: 'Open chat (coming next)', enabled: false },
+        { label: 'Open chat', click: openChat },
         { label: 'Show character', click: show },
         { label: 'Hide character', click: () => window.hide() },
         {

@@ -514,3 +514,10 @@ Official, current references must be rechecked before implementing provider/capt
 Open chat and Preferences remain disabled pending P1-03/P1-04. G1 remains open.
 P1-01 real Windows drag/focus/transparency/DPI testing remains not performed; the
 placeholder artwork is explicitly not final-design approved. G0 closure is recorded in issue #18 and PR #19.
+
+**P1-03 work:** Issue #26 adds an accessible local chat preview with open/reuse,
+keyboard submission, typing, stop/retry/error, copy and clear. See
+[evidence](docs/evidence/P1-03.md), [ADR](docs/adr/0010-local-chat-shell.md) and
+[Windows checklist](docs/test-plan/P1-03-windows.md). Fixed examples are explicitly
+labelled as local preview, not provider answers. P1-01/P1-02 human Windows passes
+are recorded in #20/#22. G1 remains open; P1-04 is the next smallest shell task.

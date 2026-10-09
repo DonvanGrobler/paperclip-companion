@@ -1,7 +1,9 @@
 import { app, BrowserWindow, Menu, protocol, session, screen } from 'electron';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { installCloseControl } from './close-control';
+import { createChatOpener } from './chat-window';
+import { lockWindow, windowPreferences } from './window-security';
+import { installCloseControl, installChatLauncher } from './close-control';
 import { installTray } from './tray';
 import { initialOverlayBounds } from './overlay-layout';
 import { CONTENT_SECURITY_POLICY, resolveResource } from './resource-policy';
@@ -68,29 +70,14 @@ app
       title: 'Paperclip Companion',
       show: false,
       backgroundColor: '#00000000',
-      webPreferences: {
-        session: shellSession,
-        preload: path.join(app.getAppPath(), 'dist/main/preload.cjs'),
-        sandbox: true,
-        contextIsolation: true,
-        nodeIntegration: false,
-        nodeIntegrationInWorker: false,
-        webSecurity: true,
-        allowRunningInsecureContent: false,
-        webviewTag: false,
-      },
+      webPreferences: windowPreferences(shellSession),
     });
-    window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
-    window.webContents.on('will-navigate', (event) => event.preventDefault());
-    window.webContents.on('will-frame-navigate', (event) =>
-      event.preventDefault(),
-    );
-    window.webContents.on('will-attach-webview', (event) =>
-      event.preventDefault(),
-    );
+    lockWindow(window);
     // Install close handling before the renderer can become interactive.
     installCloseControl(window);
-    installTray(window);
+    const openChat = createChatOpener(shellSession);
+    installChatLauncher(window, openChat);
+    installTray(window, openChat);
     window.once('ready-to-show', () => window.showInactive());
     await window.loadURL('paperclip://app/index.html');
   })
