@@ -22,6 +22,15 @@ Build a Windows-first, retro paperclip-style desktop helper for user-initiated t
 - Produce a concise completion report with exact commands and results. Distinguish unit/CI verification from real Windows interactive testing and real-provider testing.
 - Do not mark issues Done or gates passed without evidence; do not advance phase baselines with blockers.
 
+## Autonomous verification ownership
+
+- Own routine tests, Playwright/Windows CI, failure diagnosis and PR review follow-up. Do not ask the maintainer to repeat automated checks that can be executed in CI. Carry forward human evidence when the relevant behavior is unchanged.
+- Before starting a dependent issue, inspect predecessor PR review comments/threads, outstanding change requests, required checks at the latest head, merge target, and the merged main run. A bot review error or skipped review is not an approval: perform and record a direct code/security review or explicitly retain the missing review as a blocker.
+- Fix confirmed code/CI/review defects before building dependent work on them. Track non-blocking limitations explicitly rather than copying an unresolved failure through subsequent PRs. Verify new commits again after a fix.
+- Group human-only checks into a focused phase checkpoint: physical displays/DPI/protected capture, subjective art/accessibility usability, real-account consent/authentication, and release installation. Use automation for every feasible component but never relabel simulated or native automated results as human evidence.
+- The maintainer authorized more autonomous progress on 9 October 2026. Pending human checks do not require ending every task: independent/exploratory work may continue as permitted by development-plan section 4, while the affected gate remains open. Stop only the work actually dependent on an unresolved defect or required human decision. This does not waive capture/privacy gates or authorize real-account login.
+- Keep one focused issue/PR at a time, use the verified main baseline, and report what was checked, fixed, deferred and next. See docs/test-plan/verification-ownership.md. Existing branch protection and maintainer review remain in force.
+
 ## Branch and merge hygiene
 
 - Fetch origin and inspect current main plus open PR bases before each task and before publishing. Start independent work from current origin/main.
