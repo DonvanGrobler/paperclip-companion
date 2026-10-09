@@ -22,6 +22,15 @@ Build a Windows-first, retro paperclip-style desktop helper for user-initiated t
 - Produce a concise completion report with exact commands and results. Distinguish unit/CI verification from real Windows interactive testing and real-provider testing.
 - Do not mark issues Done or gates passed without evidence; do not advance phase baselines with blockers.
 
+## Branch and merge hygiene
+
+- Fetch origin and inspect current main plus open PR bases before each task and before publishing. Start independent work from current origin/main.
+- Stack only when a task needs unmerged code. Record the parent PR, and do not create a deeper stack while its parent has unresolved conflicts.
+- When a parent PR merges, retarget its immediate child to main, merge the latest main into that child, resolve and verify it, then propagate the updated child into further descendants. Preserve shared branch history with ordinary merge commits; do not force-push over maintainer work.
+- Inspect the three-way diff and prior conflict resolution. Preserve verified gate evidence and feature changes together; never resolve by taking an entire old plan or overwriting a maintainer's fix.
+- Keep detailed progress/evidence in the task's own docs/evidence file and issue/PR. Make minimal, anchored milestone edits in DEVELOPMENT_PLAN.md. Avoid accumulating competing end-of-file progress notes or reformatting unrelated sections in stacked branches.
+- Before handoff, check the diff against the actual PR base, unresolved conflict markers, mergeability and required checks at the updated head. Clearly identify checks still running; old green checks do not verify a new merge commit. Runtime-identical documentation/workflow merges do not require repeating human tests.
+
 ## Non-negotiable boundaries
 
 - **No ambient or scheduled screenshots.** Capture only when explicitly triggered by a submitted user request or an explicit attach action.

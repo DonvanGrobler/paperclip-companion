@@ -20,7 +20,7 @@ function App() {
         <button
           className="close"
           aria-label="Close companion"
-          onClick={() => window.close()}
+          onClick={() => window.companionWindow.close()}
         >
           ×
         </button>
@@ -69,7 +69,7 @@ function App() {
           Say hello
         </button>
       </section>
-      <p className="hint">Drag the top handle to move · Alt+F4 to quit</p>
+      <p className="hint">Tray menu: show, recover or quit</p>
     </main>
   );
 }
