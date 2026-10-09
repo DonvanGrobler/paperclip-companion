@@ -4,7 +4,7 @@
 // This file is never included in dist or exposed through renderer IPC.
 const { app, Menu } = require('electron');
 const path = require('node:path');
-const root = path.resolve(__dirname, '../..', '..');
+const root = path.resolve(__dirname, '../..');
 app.setAppPath(root);
 const build = Menu.buildFromTemplate;
 Menu.buildFromTemplate = function (template) {
