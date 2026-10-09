@@ -18,4 +18,4 @@ The installed graph declares MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, M
 
 For each new source file copied from elsewhere, asset, font or library, record its exact source URL/revision, file path/version, license text location, copyright holder, modifications, distribution role and reviewer decision. Keep provenance separate from whether the code is technically useful. Unknown provenance means not ready for distribution.
 
-P0-04 will turn dependency/asset rules into executable checks. P6 must verify the actual built distribution, including runtime notices. T-LIC-001 remains open until the material actually included in the artifact has traceable rights and required notices.
+P0-04 implements dependency metadata drift checks; asset/runtime clearance remains a separate review. The MIT Gitleaks CLI 8.30.1 is CI-only tooling, pinned by release SHA-256 in the workflow; see [ADR 0007](../adr/0007-quality-gates.md). It is not bundled with the app. P6 must verify the actual built distribution, including runtime notices. T-LIC-001 remains open until the material actually included in the artifact has traceable rights and required notices.

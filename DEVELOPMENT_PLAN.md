@@ -468,7 +468,9 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 **P0-03 work:** Foundation documentation and Windows G0 handoff are In review in [issue #5](https://github.com/DonvanGrobler/paperclip-companion/issues/5). Use the [Windows walkthrough](docs/test-plan/G0-windows-walkthrough.md) and [G0 checklist](docs/test-plan/G0-status.md). The project-license proposal remains unadopted pending review.
 
-**Next smallest engineering step:** Fix and verify the automated native-window visibility race (issue #7), then complete P0-04 quality gates, then P0-05 synthetic fixtures. P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
+**P0-04 work:** Quality gates implemented in [issue #9](https://github.com/DonvanGrobler/paperclip-companion/issues/9); see [evidence](docs/evidence/P0-04.md) and [required-check setup](docs/test-plan/P0-04-quality-gates.md). Repository enforcement and risk review remain outstanding.
+
+**Next smallest engineering step:** Complete P0-05 synthetic fixtures. Issue #7 visibility synchronization passed three Windows CI launches; corrected Windows 11 automated rerun remains pending. P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
 
 ### Weekly/review-session project update template
 
