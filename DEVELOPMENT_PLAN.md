@@ -2,7 +2,7 @@
 
 **Version:** 1.0 (planning baseline)
 **Date:** 9 October 2026
-**Status:** P0 foundation in progress; P0-01, P0-02 and P0-03 in review; minimal shell implemented
+**Status:** P0 implementation merged and reviewed; G0 blocked on required-check enforcement; P1-01 exploration authorized
 **Working title:** Paperclip Companion (temporary; final name and art are open decisions)
 **Owner:** Project maintainer
 **Project type:** Free, hobby-led, publicly available source code; no backend service by default
@@ -454,7 +454,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 | Phase | Status | Gate | Evidence location |
 |---|---|---|---|
-| P0 Foundation | In progress — P0-01, P0-02 and P0-03 in review | G0 not evaluated | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
+| P0 Foundation | Implemented and reviewed; enforcement pending | G0 blocked (#18) | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
 | P1 Desktop shell | Not started | G1 not evaluated | TBD |
 | P2 Model-neutral chat | Not started | G2 not evaluated | TBD |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
@@ -502,3 +502,6 @@ Official, current references must be rechecked before implementing provider/capt
 - Prior art for evaluation only — [felixrieseberg/clippy](https://github.com/felixrieseberg/clippy), [RaymonDev/clippy](https://github.com/RaymonDev/clippy). Existing public repositories and their LICENSE files **do not** automatically authorize third-party character images.
 
 **Disclaimer:** This is a technical and project-risk document, not a legal opinion. Terms, model eligibility and APIs can change. Legal or licensing blockers are not waived because the project is free, nostalgic or a hobby.
+
+
+**9 October gate review:** Donvan delegated the security/licensing review. [Review findings](docs/evidence/G0-security-license-review.md) complete the foundation review and link green main CI at c8b53a7. G0 is tracked in #18 and remains blocked because GitHub main has no enforced required checks. P1-01 may proceed as exploratory work under section 4. No source-code license or binary release clearance is inferred.
