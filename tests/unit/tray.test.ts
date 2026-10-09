@@ -49,7 +49,10 @@ beforeEach(() => {
   w.isMinimized.mockReturnValue(false);
 });
 it('installs an original icon, explicit unavailable items and independent show/hide controls', () => {
-  installTray(w as unknown as BrowserWindow);
+  const openChat = vi.fn();
+  installTray(w as unknown as BrowserWindow, openChat);
+  click('Open chat');
+  expect(openChat).toHaveBeenCalledOnce();
   expect(m.bitmap).toHaveBeenCalledWith(expect.any(Buffer), {
     width: 16,
     height: 16,
@@ -57,8 +60,8 @@ it('installs an original icon, explicit unavailable items and independent show/h
   expect(m.menu.mock.calls[0]![0]).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
-        label: 'Open chat (coming next)',
-        enabled: false,
+        label: 'Open chat',
+        click: expect.any(Function),
       }),
       expect.objectContaining({
         label: 'Preferences (coming soon)',
@@ -85,7 +88,7 @@ it('installs an original icon, explicit unavailable items and independent show/h
   });
 });
 it('hides on close but allows quit and destroys the retained tray', () => {
-  installTray(w as unknown as BrowserWindow);
+  installTray(w as unknown as BrowserWindow, vi.fn());
   const e = { preventDefault: vi.fn() };
   event('close')(e);
   expect(e.preventDefault).toHaveBeenCalledOnce();
@@ -107,7 +110,7 @@ it.each(['construct', 'menu'] as const)(
       throw new Error('private details');
     });
     try {
-      installTray(w as unknown as BrowserWindow);
+      installTray(w as unknown as BrowserWindow, vi.fn());
       expect(w.on).not.toHaveBeenCalled();
       expect(log).toHaveBeenCalledExactlyOnceWith('TRAY_UNAVAILABLE');
       expect(w.show).toHaveBeenCalledOnce();

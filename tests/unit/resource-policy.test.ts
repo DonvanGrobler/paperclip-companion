@@ -7,6 +7,7 @@ import {
 describe('bundled resource boundary', () => {
   it.each([
     ['paperclip://app/index.html', 'index.html', 'text/html'],
+    ['paperclip://app/chat.html', 'index.html', 'text/html'],
     [
       'paperclip://app/assets/index-Ab_19.js',
       'assets/index-Ab_19.js',
@@ -31,6 +32,8 @@ describe('bundled resource boundary', () => {
     'paperclip://app:123/index.html',
     'paperclip://app/index.html?token=secret',
     'paperclip://app/index.html#fragment',
+    'paperclip://app/chat.html?external=true',
+    'paperclip://app/chat.html#fragment',
     'paperclip://app/../../package.json',
     'paperclip://app/assets/../../package.json',
     'paperclip://app/assets/%2e%2e/%2e%2e/package.json',

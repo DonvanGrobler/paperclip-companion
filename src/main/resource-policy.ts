@@ -19,7 +19,7 @@ export function resolveResource(
     url.hash
   )
     return null;
-  if (url.pathname === '/index.html')
+  if (url.pathname === '/index.html' || url.pathname === '/chat.html')
     return { path: 'index.html', mime: 'text/html' };
   if (!/^\/assets\/[A-Za-z0-9_-]+\.(js|css)$/.test(url.pathname)) return null;
   return {
