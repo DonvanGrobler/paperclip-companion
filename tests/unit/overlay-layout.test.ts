@@ -18,3 +18,29 @@ describe('initial overlay bounds', () => {
     ).toEqual({ x: 10, y: 20, width: 200, height: 220 });
   });
 });
+
+it('keeps bounds on the most overlapping display and handles removed monitors and small work areas', async () => {
+  const { fitBounds } = await import('../../src/main/overlay-layout');
+  const primary = { x: 0, y: 0, width: 1000, height: 700 };
+  const left = { x: -1200, y: -200, width: 1200, height: 900 };
+  expect(
+    fitBounds(
+      { x: -800, y: 50, width: 280, height: 340 },
+      [left, primary],
+      primary,
+    ),
+  ).toEqual({ x: -800, y: 50, width: 280, height: 340 });
+  expect(
+    fitBounds({ x: -800, y: 50, width: 280, height: 340 }, [primary], primary),
+  ).toEqual({ x: 0, y: 50, width: 280, height: 340 });
+  expect(
+    fitBounds({ x: 900, y: 600, width: 280, height: 340 }, [], primary),
+  ).toEqual({ x: 720, y: 360, width: 280, height: 340 });
+  expect(
+    fitBounds(
+      { x: 0, y: 0, width: 640, height: 680 },
+      [{ x: 10, y: 20, width: 200, height: 220 }],
+      primary,
+    ),
+  ).toEqual({ x: 10, y: 20, width: 200, height: 220 });
+});

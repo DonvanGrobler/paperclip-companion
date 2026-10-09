@@ -13,6 +13,8 @@ const m = vi.hoisted(() => ({
   bitmap: vi.fn(),
   construct: vi.fn(),
 }));
+vi.mock('../../src/main/display-recovery', () => ({ recoverWindow: vi.fn() }));
+const preferences = { setAlwaysOnTop: vi.fn(), reset: vi.fn() };
 vi.mock('electron', () => ({
   app: m.app,
   Menu: { buildFromTemplate: m.menu },
@@ -29,6 +31,7 @@ vi.mock('electron', () => ({
 }));
 const w = {
   on: vi.fn(),
+  isAlwaysOnTop: () => true,
   hide: vi.fn(),
   show: vi.fn(),
   focus: vi.fn(),
@@ -50,7 +53,7 @@ beforeEach(() => {
 });
 it('installs an original icon, explicit unavailable items and independent show/hide controls', () => {
   const openChat = vi.fn();
-  installTray(w as unknown as BrowserWindow, openChat);
+  installTray(w as unknown as BrowserWindow, openChat, preferences);
   click('Open chat');
   expect(openChat).toHaveBeenCalledOnce();
   expect(m.bitmap).toHaveBeenCalledWith(expect.any(Buffer), {
@@ -64,8 +67,8 @@ it('installs an original icon, explicit unavailable items and independent show/h
         click: expect.any(Function),
       }),
       expect.objectContaining({
-        label: 'Preferences (coming soon)',
-        enabled: false,
+        label: 'Preferences',
+        submenu: expect.any(Array),
       }),
     ]),
   );
@@ -88,7 +91,7 @@ it('installs an original icon, explicit unavailable items and independent show/h
   });
 });
 it('hides on close but allows quit and destroys the retained tray', () => {
-  installTray(w as unknown as BrowserWindow, vi.fn());
+  installTray(w as unknown as BrowserWindow, vi.fn(), preferences);
   const e = { preventDefault: vi.fn() };
   event('close')(e);
   expect(e.preventDefault).toHaveBeenCalledOnce();
@@ -110,7 +113,7 @@ it.each(['construct', 'menu'] as const)(
       throw new Error('private details');
     });
     try {
-      installTray(w as unknown as BrowserWindow, vi.fn());
+      installTray(w as unknown as BrowserWindow, vi.fn(), preferences);
       expect(w.on).not.toHaveBeenCalled();
       expect(log).toHaveBeenCalledExactlyOnceWith('TRAY_UNAVAILABLE');
       expect(w.show).toHaveBeenCalledOnce();
@@ -119,3 +122,20 @@ it.each(['construct', 'menu'] as const)(
     }
   },
 );
+
+it('changes and resets preferences through native menu controls', () => {
+  expect(installTray(w as unknown as BrowserWindow, vi.fn(), preferences)).toBe(
+    true,
+  );
+  const menu = m.menu.mock.calls.at(-1)![0] as MenuItemConstructorOptions[];
+  const submenu = menu.find((i) => i.label === 'Preferences')!
+    .submenu as MenuItemConstructorOptions[];
+  (submenu[0]!.click as unknown as (item: { checked: boolean }) => void)({
+    checked: false,
+  });
+  expect(preferences.setAlwaysOnTop).toHaveBeenCalledWith(false);
+  (submenu[1]!.click as () => void)();
+  expect(preferences.reset).toHaveBeenCalledOnce();
+  expect(w.show).toHaveBeenCalledOnce();
+  expect(m.menu).toHaveBeenCalledTimes(2);
+});

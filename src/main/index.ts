@@ -1,11 +1,15 @@
-import { app, BrowserWindow, Menu, protocol, session, screen } from 'electron';
+import { app, BrowserWindow, Menu, protocol, session } from 'electron';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { createChatOpener } from './chat-window';
 import { lockWindow, windowPreferences } from './window-security';
 import { installCloseControl, installChatLauncher } from './close-control';
 import { installTray } from './tray';
-import { initialOverlayBounds } from './overlay-layout';
+import { createPreferenceStore } from './preferences';
+import {
+  installShellPreferences,
+  restoredOverlayBounds,
+} from './shell-preferences';
 import { CONTENT_SECURITY_POLICY, resolveResource } from './resource-policy';
 
 // Keep the renderer sandbox in every launch, including tests.
@@ -57,14 +61,18 @@ app
       }
     });
     Menu.setApplicationMenu(null);
+    const store = createPreferenceStore(
+      path.join(app.getPath('userData'), 'shell-preferences.json'),
+    );
+    const preferences = store.get();
     const window = new BrowserWindow({
-      ...initialOverlayBounds(screen.getPrimaryDisplay().workArea),
+      ...restoredOverlayBounds(preferences),
       frame: false,
       transparent: true,
       resizable: false,
       maximizable: false,
       fullscreenable: false,
-      alwaysOnTop: true,
+      alwaysOnTop: preferences.alwaysOnTop,
       skipTaskbar: false,
       hasShadow: false,
       title: 'Paperclip Companion',
@@ -77,8 +85,8 @@ app
     installCloseControl(window);
     const openChat = createChatOpener(shellSession);
     installChatLauncher(window, openChat);
-    installTray(window, openChat);
-    window.once('ready-to-show', () => window.showInactive());
+    const controls = installShellPreferences(window, store);
+    controls.start(installTray(window, openChat, controls));
     await window.loadURL('paperclip://app/index.html');
   })
   .catch(() => {

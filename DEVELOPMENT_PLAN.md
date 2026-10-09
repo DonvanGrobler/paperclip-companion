@@ -455,7 +455,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 | Phase | Status | Gate | Evidence location |
 |---|---|---|---|
 | P0 Foundation | Verified at c8b53a7 | G0 passed (#18) | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
-| P1 Desktop shell | P1-01 exploratory implementation in review (#20) | G1 not evaluated | [P1-01](docs/evidence/P1-01.md) |
+| P1 Desktop shell | P1-01–03 merged; P1-04 in review (#30) | G1 open; Windows display checks pending | [P1-04](docs/evidence/P1-04.md), [Quit follow-up](docs/evidence/P1-03-quit.md) |
 | P2 Model-neutral chat | Not started | G2 not evaluated | TBD |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
 | P4 Provider integration | Not started | G4 not evaluated | TBD |
@@ -472,7 +472,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 **P0-05 work:** Synthetic screenshots and deterministic provider event fixtures implemented in [issue #11](https://github.com/DonvanGrobler/paperclip-companion/issues/11); [evidence](docs/evidence/P0-05.md). No production provider/capture feature is implemented.
 
-**Next smallest engineering step:** P1-02 tray controls and show/hide recovery after P1-01 review. Issue #7 visibility synchronization passed three Windows CI launches; the maintainer confirmed all three Windows 11 automated runs passed at `8935e46` ([report](docs/evidence/G0-windows-11-8935e46.md)). P0-02 supplied only the checks needed for the scaffold. G0 passed after final main CI, Windows evidence, delegated review and required-check enforcement verification. No upstream source or artwork is approved for copying.
+**Next smallest engineering step:** Verify P1-04 shell persistence and display recovery (#30), then review G1 evidence before P2 baseline promotion. Issue #7 visibility synchronization passed three Windows CI launches; the maintainer confirmed all three Windows 11 automated runs passed at `8935e46` ([report](docs/evidence/G0-windows-11-8935e46.md)). P0-02 supplied only the checks needed for the scaffold. G0 passed after final main CI, Windows evidence, delegated review and required-check enforcement verification. No upstream source or artwork is approved for copying.
 
 ### Weekly/review-session project update template
 

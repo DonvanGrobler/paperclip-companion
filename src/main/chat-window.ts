@@ -6,6 +6,7 @@ import {
   type Session,
 } from 'electron';
 import { CHAT_URL, installCloseControl, trustedWindow } from './close-control';
+import { installDisplayRecovery, recoverWindow } from './display-recovery';
 import { lockWindow, windowPreferences } from './window-security';
 
 export function createChatOpener(session: Session): () => void {
@@ -13,6 +14,7 @@ export function createChatOpener(session: Session): () => void {
   return () => {
     if (chat) {
       if (chat.isMinimized()) chat.restore();
+      recoverWindow(chat, true);
       chat.show();
       chat.focus();
       return;
@@ -32,6 +34,7 @@ export function createChatOpener(session: Session): () => void {
     });
     chat = window;
     lockWindow(window);
+    installDisplayRecovery(window, true);
     installCloseControl(window, CHAT_URL);
     ipcMain.handle('companion:copy', async (event, ...args: unknown[]) => {
       const text = args[0];

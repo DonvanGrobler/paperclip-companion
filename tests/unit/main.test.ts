@@ -9,6 +9,9 @@ const mocks = vi.hoisted(() => {
   };
   const window = {
     webContents,
+    on: vi.fn(),
+    isDestroyed: () => false,
+    getBounds: () => ({ x: 1616, y: 676, width: 280, height: 340 }),
     once: vi.fn(),
     showInactive: vi.fn(),
     loadURL: vi.fn(),
@@ -22,7 +25,17 @@ const mocks = vi.hoisted(() => {
     protocol: { handle: vi.fn() },
   };
   return {
-    installTray: vi.fn(),
+    installTray: vi.fn(() => true),
+    store: {
+      get: () => ({
+        version: 1,
+        position: null,
+        visible: true,
+        alwaysOnTop: true,
+      }),
+      update: vi.fn(),
+      flush: vi.fn(),
+    },
     openChat: vi.fn(),
     ipcMain: { on: vi.fn(), removeListener: vi.fn() },
     window,
@@ -35,6 +48,7 @@ const mocks = vi.hoisted(() => {
       enableSandbox: vi.fn(),
       whenReady: vi.fn(),
       getAppPath: vi.fn(() => '/app'),
+      getPath: vi.fn(() => '/profile'),
       on: vi.fn(),
       quit: vi.fn(),
       exit: vi.fn(),
@@ -43,6 +57,11 @@ const mocks = vi.hoisted(() => {
     session: { fromPartition: vi.fn(() => shellSession) },
     Menu: { setApplicationMenu: vi.fn() },
     screen: {
+      on: vi.fn(),
+      removeListener: vi.fn(),
+      getAllDisplays: () => [
+        { workArea: { x: 0, y: 0, width: 1920, height: 1040 } },
+      ],
       getPrimaryDisplay: vi.fn(() => ({
         workArea: { x: 0, y: 0, width: 1920, height: 1040 },
       })),
@@ -50,6 +69,9 @@ const mocks = vi.hoisted(() => {
   };
 });
 vi.mock('electron', () => mocks);
+vi.mock('../../src/main/preferences', () => ({
+  createPreferenceStore: () => mocks.store,
+}));
 vi.mock('../../src/main/chat-window', () => ({
   createChatOpener: () => mocks.openChat,
 }));
@@ -75,6 +97,11 @@ describe('actual main-process wiring', () => {
     expect(mocks.installTray).toHaveBeenCalledWith(
       mocks.window,
       mocks.openChat,
+      expect.objectContaining({
+        start: expect.any(Function),
+        reset: expect.any(Function),
+        setAlwaysOnTop: expect.any(Function),
+      }),
     );
     expect(mocks.installTray.mock.invocationCallOrder[0]).toBeLessThan(
       mocks.window.loadURL.mock.invocationCallOrder[0]!,
@@ -114,7 +141,9 @@ describe('actual main-process wiring', () => {
     expect(mocks.window.loadURL).toHaveBeenCalledWith(
       'paperclip://app/index.html',
     );
-    mocks.window.once.mock.calls[0]![1]();
+    mocks.window.once.mock.calls.find(
+      ([name]) => name === 'ready-to-show',
+    )![1]();
     expect(mocks.window.showInactive).toHaveBeenCalledOnce();
     mocks.app.on.mock.calls.find(
       ([name]) => name === 'window-all-closed',
