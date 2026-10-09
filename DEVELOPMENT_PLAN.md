@@ -510,5 +510,5 @@ Official, current references must be rechecked before implementing provider/capt
 #22, stacked on P1-01 PR #21. See [evidence](docs/evidence/P1-02.md),
 [ADR](docs/adr/0009-tray-lifecycle.md) and [Windows checklist](docs/test-plan/P1-02-windows.md).
 Open chat and Preferences remain disabled pending P1-03/P1-04. G1 remains open.
-The maintainer's P1-01 Windows checklist passed; placeholder artwork is explicitly
-not final-design approved. G0 closure is recorded in issue #18 and PR #19.
+P1-01 real Windows drag/focus/transparency/DPI testing remains not performed; the
+placeholder artwork is explicitly not final-design approved. G0 closure is recorded in issue #18 and PR #19.
