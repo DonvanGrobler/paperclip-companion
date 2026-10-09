@@ -1,0 +1,57 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #24352e;
+  background: #f4f1e9;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+main {
+  max-width: 720px;
+  margin: auto;
+  padding: 44px;
+}
+.eyebrow {
+  letter-spacing: 0.16em;
+  font-size: 12px;
+  font-weight: 700;
+}
+h1 {
+  font-size: clamp(30px, 5vw, 46px);
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+  margin: 26px 0 16px;
+}
+.intro {
+  color: #56645c;
+  font-size: 18px;
+}
+section {
+  margin-top: 30px;
+  padding: 22px;
+  background: #fffdf6;
+  border: 1px solid #d3d7c8;
+  border-radius: 12px;
+}
+h2 {
+  font-size: 17px;
+  margin-top: 0;
+}
+p {
+  line-height: 1.55;
+}
+.privacy {
+  font-size: 13px;
+  color: #395641;
+  margin-bottom: 0;
+}
+footer {
+  margin-top: 24px;
+  color: #56645c;
+  font-size: 12px;
+}
