@@ -27,3 +27,22 @@ retry; native Windows Electron tests use a separate test-only main-process entry
 point to inject one error after a real chunk, then retry through the real mock.
 The existing natural mock scripts remain tested separately. No fault switches are
 available in the production app. See [P2 review](../../docs/evidence/P2-review.md).
+
+## Screen-intent corpus
+
+`screen-intent.json` contains 240 synthetic, project-authored prompts, split before
+policy implementation into development and evaluation partitions of 120 each.
+Each has 30 clear current-visual requests, 30 general questions, 30 ambiguous prompts
+and 30 adversarial/meta/negated prompts. Labels express visual intent, not permission
+to capture. IDs are partition-label-1-based-index. The pre-implementation corpus hash
+is pinned in [metrics](../../docs/evidence/P3-04-metrics.json).
+
+This same-author split is not a blinded or independent benchmark and includes related
+phrasings. The first evaluation was not used to retune rules or labels. Both partitions
+have zero false positives but 86.7% recall, below the 90% target. Known misses stay
+text-only. Any later tuning must retain this set as regression material and introduce
+a new unseen evaluation partition. No natural-language privacy guarantees are claimed.
+
+Run `npm run evaluate:intent` for ID/count-only results. `npm run check` also checks
+corpus integrity, control precedence, the negative cases and baseline prediction drift.
+Capture is not enabled and the classifier is not connected to the app runtime.

@@ -74,6 +74,13 @@ Windows clipboard history. Shell settings are saved separately; chat is not rest
 See [streaming evidence](docs/evidence/P2-02.md) and [IPC design](docs/adr/0013-main-chat-stream.md).
 Routine streaming and lifecycle checks run automatically on Windows CI.
 
+### Screen-intent experiment (P3-04)
+
+For the separate, non-runtime screen-intent experiment, run `npm run evaluate:intent`.
+It uses only synthetic prompts and does not capture anything. Its measured recall
+is below the target, so it is not approved for automatic capture. See
+[P3-04 evidence](docs/evidence/P3-04.md) and [policy ADR](docs/adr/0014-screen-intent-policy.md).
+
 ### Saved shell preferences and display recovery (P1-04)
 
 Position, hidden/visible state and **Always on top** survive restart. A hidden

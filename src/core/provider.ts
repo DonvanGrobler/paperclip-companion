@@ -1,3 +1,6 @@
+import { MAX_PROMPT_LENGTH } from './limits.ts';
+export { MAX_PROMPT_LENGTH } from './limits.ts';
+
 export interface ProviderCapabilities {
   text: boolean;
   vision: boolean;
@@ -31,7 +34,6 @@ export interface AIProvider {
   disconnect(): Promise<void>;
   streamReply(input: ChatInput, signal: AbortSignal): AsyncIterable<string>;
 }
-export const MAX_PROMPT_LENGTH = 2000;
 // Local contract budget, not a claim about a real provider's upload limit.
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const record = (value: unknown): value is Record<string, unknown> =>

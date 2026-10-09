@@ -40,7 +40,8 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "npm run build && playwright test",
-    "check": "npm run format && npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run check:licenses",
+    "check": "npm run format && npm run lint && npm run typecheck && npm run test:coverage && npm run evaluate:intent && npm run build && npm run check:licenses",
+    "evaluate:intent": "node scripts/evaluate-screen-intent.ts",
     "check:licenses": "node scripts/license-check.ts"
   }
 }
