@@ -300,3 +300,31 @@ h1 {
   background: #215e55;
   color: white;
 }
+.screen-controls,
+.screen-confirm {
+  flex-shrink: 0;
+  border: 1px solid #8baba0;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fffdf6;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.screen-controls summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.screen-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.screen-controls input {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.screen-choice {
+  margin-bottom: 0;
+}

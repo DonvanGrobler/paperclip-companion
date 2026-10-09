@@ -1,6 +1,6 @@
 # Privacy notice — local desktop preview
 
-Draft for review, 9 October 2026. This notice describes the character, tray, P2 offline mock chat and shell preferences. Authentication and screen capture are not implemented.
+Draft for review, 10 October 2026. This notice describes the character, tray, P2 offline mock chat, screen-controls preview and shell preferences. Authentication and screen capture are not implemented.
 
 ## What the preview does
 
@@ -13,6 +13,14 @@ the operating-system clipboard on request; OS clipboard history or synchronizati
 may retain it independently. Clear does not erase clipboard data.
 
 ## Local files and development activity
+
+Screen context in chat offers a local controls preview only. Try controls locally
+is not screen-sharing consent. Include pauses sending and offers an explicit
+text-only choice because capture is unavailable. Never overrides Include, and
+Use text only withdraws the preview choice. Withdrawal or turning Never on stops
+the active mock reply. Choices stay in renderer memory, never authorize capture,
+and reset when chat is closed or reloaded. Never is window-scoped in this preview,
+not a saved application preference. No real consent grant is collected or stored.
 
 The application stores only a version number, character x/y coordinates in
 device-independent pixels, visible/hidden state and always-on-top preference in
@@ -39,4 +47,4 @@ Later implementation must provide clear screen-sharing disclosure and consent, i
 
 Authentication must use the supported official flow and OS-protected credential storage with disconnect controls. Credentials must stay out of renderer state and diagnostics. Chat-history retention defaults off under the current plan. Any opt-in persistence requires its own reviewed design and clear/delete behavior.
 
-Those are requirements for future phases, not available controls in this preview. The [development plan](DEVELOPMENT_PLAN.md) and [scaffold ADR](docs/adr/0006-scaffold-toolchain.md) define the present boundaries. Until changed and verified, do not enter or test sensitive material or real provider credentials through this project.
+Those are requirements for future phases; the local controls preview does not implement real sharing or destination-bound consent. The [development plan](DEVELOPMENT_PLAN.md) and [screen-controls ADR](docs/adr/0016-screen-controls-preview.md) define the present boundaries. Until changed and verified, do not enter or test sensitive material or real provider credentials through this project.

@@ -459,7 +459,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 | P0 Foundation | Verified at c8b53a7 | G0 passed (#18) | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
 | P1 Desktop shell | P1-01–04 merged; physical display evidence pending (#30) | G1 open; Windows display checks pending | [P1-04](docs/evidence/P1-04.md), [Quit follow-up](docs/evidence/P1-03-quit.md) |
 | P2 Model-neutral chat | P2-01–04 merged and technically verified at 4060ef1 | G2 promotion waits for G1 human evidence | [P2-01](docs/evidence/P2-01.md), [P2-02](docs/evidence/P2-02.md), [P2 review](docs/evidence/P2-review.md) |
-| P3 Screen context | P3-04 merged at 4f2f1e0; P3-05a pure authorization contract in review (#40); no capture enabled | G3 open; recall target not met, live privacy/capture gates pending | [P3-04](docs/evidence/P3-04.md), [P3-05a](docs/evidence/P3-05a.md) |
+| P3 Screen context | P3-04 and P3-05a merged; P3-01a controls preview in review (#42); no capture enabled | G3 open; real consent, recall target and live capture gates pending | [P3-04](docs/evidence/P3-04.md), [P3-05a](docs/evidence/P3-05a.md), [P3-01a](docs/evidence/P3-01a.md) |
 | P4 Provider integration | Not started | G4 not evaluated | TBD |
 | P5 Security/polish | Not started | G5 not evaluated | TBD |
 | P6 Public beta | Not started | G6 not evaluated | TBD |

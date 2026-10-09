@@ -1,17 +1,33 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { CHAT_ERRORS, type ChatScenario } from '../core/chat-protocol';
 import { chatReducer, initialChat } from './chat-state';
+import {
+  initialScreenPreview,
+  screenPreviewReducer,
+  screenPreviewSubmission,
+  type ScreenPreviewAction,
+} from '../core/screen-preview';
+import { ScreenControls } from './screen-controls';
 
 export function Chat() {
   const [state, dispatch] = useReducer(chatReducer, initialChat);
   const [draft, setDraft] = useState('');
   const [scenario, setScenario] = useState<ChatScenario>('reply');
   const [copyStatus, setCopyStatus] = useState('');
+  const [screen, screenDispatch] = useReducer(
+    screenPreviewReducer,
+    initialScreenPreview,
+  );
+  const [confirmTextOnly, setConfirmTextOnly] = useState(false);
+  const confirmButton = useRef<HTMLButtonElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const copyAttempt = useRef(0);
   useEffect(() => {
     input.current?.focus();
   }, []);
+  useEffect(() => {
+    if (confirmTextOnly) confirmButton.current?.focus();
+  }, [confirmTextOnly]);
   useEffect(() => {
     if (state.status !== 'typing') return;
     let live = true;
@@ -46,13 +62,18 @@ export function Chat() {
     copyAttempt.current++;
     setCopyStatus('');
   }, [state.run]);
-  const submit = () => {
-    if (
-      !draft.trim() ||
-      draft.trim().length > 2000 ||
-      state.status === 'typing'
-    )
+  const submit = (textOnlyConfirmed = false) => {
+    if (!draft.trim() || draft.length > 2000 || state.status === 'typing')
       return;
+    if (
+      screenPreviewSubmission(screen) === 'confirm-text-only' &&
+      !(textOnlyConfirmed && confirmTextOnly)
+    ) {
+      setConfirmTextOnly(true);
+      return;
+    }
+    setConfirmTextOnly(false);
+    screenDispatch({ type: 'reset-request' });
     dispatch({ type: 'submit', prompt: draft });
     setDraft('');
     input.current?.focus();
@@ -73,9 +94,17 @@ export function Chat() {
       );
   };
   const clear = () => {
+    setConfirmTextOnly(false);
+    screenDispatch({ type: 'reset-request' });
     dispatch({ type: 'clear' });
     setDraft('');
     input.current?.focus();
+  };
+  const screenAction = (action: ScreenPreviewAction) => {
+    setConfirmTextOnly(false);
+    screenDispatch(action);
+    if (action.type === 'withdraw' || (action.type === 'never' && action.value))
+      dispatch({ type: 'stop' });
   };
   const status = {
     idle: 'Ready for a preview message.',
@@ -103,13 +132,21 @@ export function Chat() {
       <p className="chat-notice">
         Provider: Offline mock · Text only · No account connected
       </p>
+      <ScreenControls
+        state={screen}
+        busy={state.status === 'typing'}
+        onAction={screenAction}
+      />
       <div className="chat-options">
         <label htmlFor="scenario">Preview scenario</label>
         <select
           id="scenario"
           value={scenario}
           disabled={state.status === 'typing'}
-          onChange={(e) => setScenario(e.target.value as ChatScenario)}
+          onChange={(e) => {
+            setConfirmTextOnly(false);
+            setScenario(e.target.value as ChatScenario);
+          }}
         >
           <option value="reply">Sample reply</option>
           <option value="error">Offline error</option>
@@ -128,6 +165,7 @@ export function Chat() {
           <article>
             <h2>You</h2>
             <p>{state.prompt}</p>
+            <small>No screen attached · text-only preview</small>
           </article>
         )}
         {state.response && (
@@ -162,7 +200,10 @@ export function Chat() {
           value={draft}
           rows={3}
           aria-describedby="message-help"
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => {
+            setConfirmTextOnly(false);
+            setDraft(e.target.value);
+          }}
           onKeyDown={(e) => {
             if (
               e.key === 'Enter' &&
@@ -177,6 +218,32 @@ export function Chat() {
         <p id="message-help">
           Enter to send · Shift+Enter for a new line · 2,000 characters maximum
         </p>
+        {confirmTextOnly && (
+          <div className="screen-confirm">
+            <p role="alert">
+              Screen capture is unavailable. No message has been sent. Send only
+              your text to the offline mock?
+            </p>
+            <div className="chat-actions">
+              <button
+                ref={confirmButton}
+                type="button"
+                onClick={() => submit(true)}
+              >
+                Send text only
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmTextOnly(false);
+                  input.current?.focus();
+                }}
+              >
+                Keep editing
+              </button>
+            </div>
+          </div>
+        )}
         <div className="chat-actions">
           <button
             type="submit"
@@ -198,6 +265,8 @@ export function Chat() {
             type="button"
             disabled={state.status !== 'stopped' && state.status !== 'error'}
             onClick={() => {
+              setConfirmTextOnly(false);
+              screenDispatch({ type: 'reset-request' });
               dispatch({ type: 'retry' });
               input.current?.focus();
             }}

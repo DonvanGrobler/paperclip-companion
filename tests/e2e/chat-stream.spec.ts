@@ -124,13 +124,19 @@ test('denies overlay and malformed IPC; cancels on reload and close with clean r
           start({ run: 1, prompt: 'x'.repeat(2001), scenario: 'reply' }),
           start({
             run: 1,
+            prompt: 'denied consent',
+            scenario: 'reply',
+            consentGranted: true,
+          }),
+          start({
+            run: 1,
             prompt: 'endpoint',
             scenario: 'reply',
             endpoint: 'https://example.com',
           }),
         ]);
       }),
-    ).toEqual([false, false, false]);
+    ).toEqual([false, false, false, false]);
     await send(chat);
     await expect(chat.locator('.sample p')).toHaveText('A pivot table ');
     await chat.reload();
@@ -231,4 +237,140 @@ test('every provider error has safe accessible recovery and a real mock retry', 
     }
     await control.dispose();
   }, path.resolve('tests/e2e/chat-harness.cjs'));
+});
+
+test('screen controls require explicit text-only fallback and Never overrides Include', async () => {
+  await withChat(async (app, chat) => {
+    const control = await app.evaluateHandle(
+      () =>
+        Reflect.get(globalThis, '__paperclipChatFault') as { starts: number },
+    );
+    await chat
+      .getByText('Screen context · unavailable in this preview', {
+        exact: true,
+      })
+      .click();
+    const include = chat.getByRole('checkbox', {
+      name: 'Include screen for next message',
+    });
+    const never = chat.getByRole('checkbox', {
+      name: 'Never include screen in this window',
+    });
+    await expect(include).toBeDisabled();
+    await expect(include).not.toBeChecked();
+    const review = chat.getByRole('button', { name: 'Try controls locally' });
+    await review.focus();
+    await review.press('Enter');
+    await expect(include).toBeFocused();
+    await include.press('Space');
+    await chat.getByLabel('Your message').fill('Synthetic screen question');
+    await chat.getByLabel('Your message').press('Enter');
+    const confirmation = chat.getByRole('button', {
+      name: 'Send text only',
+      exact: true,
+    });
+    await expect(confirmation).toBeFocused();
+    expect(await control.evaluate((state) => state.starts)).toBe(0);
+    await chat.getByLabel('Your message').fill('Changed synthetic question');
+    await expect(confirmation).toHaveCount(0);
+    await chat.getByLabel('Your message').press('Enter');
+    await chat.getByRole('button', { name: 'Keep editing' }).click();
+    await expect(chat.getByLabel('Your message')).toBeFocused();
+    expect(await control.evaluate((state) => state.starts)).toBe(0);
+    await chat.getByLabel('Your message').press('Enter');
+    await confirmation.press('Enter');
+    await ready(chat);
+    expect(await control.evaluate((state) => state.starts)).toBe(1);
+    await expect(
+      chat.getByText('No screen attached · text-only preview', { exact: true }),
+    ).toBeVisible();
+    await expect(include).not.toBeChecked();
+    await include.check();
+    await never.check();
+    await expect(include).not.toBeChecked();
+    await expect(include).toBeDisabled();
+    await never.uncheck();
+    await expect(include).toBeEnabled();
+    await expect(include).not.toBeChecked();
+    await include.check();
+    await chat.getByRole('button', { name: 'Clear conversation' }).click();
+    await expect(include).not.toBeChecked();
+    await control.dispose();
+  }, path.resolve('tests/e2e/chat-harness.cjs'));
+});
+
+test('withdrawing preview controls stops work and privacy choices reset on reopen', async () => {
+  await withChat(async (app, chat, overlay) => {
+    await chat
+      .getByText('Screen context · unavailable in this preview', {
+        exact: true,
+      })
+      .click();
+    await chat.getByRole('button', { name: 'Try controls locally' }).click();
+    await send(chat);
+    await expect(chat.locator('.sample p')).toHaveText('A pivot table ');
+    await chat.getByRole('button', { name: 'Use text only' }).click();
+    await expect(chat.locator('.chat-status')).toHaveText(
+      'Stopped. Nothing was sent to an external service.',
+    );
+    await expect(
+      chat.getByRole('button', { name: 'Try controls locally' }),
+    ).toBeFocused();
+    await expect(
+      chat.getByRole('checkbox', { name: 'Include screen for next message' }),
+    ).toBeDisabled();
+    await chat.getByRole('button', { name: 'Try controls locally' }).click();
+    await chat
+      .getByRole('checkbox', { name: 'Include screen for next message' })
+      .check();
+    await chat.getByRole('button', { name: 'Retry', exact: true }).click();
+    await expect(
+      chat.getByRole('checkbox', { name: 'Include screen for next message' }),
+    ).not.toBeChecked();
+    await expect(chat.locator('.sample p')).toHaveText('A pivot table ');
+    await chat
+      .getByRole('checkbox', { name: 'Never include screen in this window' })
+      .check();
+    await expect(chat.locator('.chat-status')).toHaveText(
+      'Stopped. Nothing was sent to an external service.',
+    );
+    await chat.reload();
+    await chat
+      .getByText('Screen context · unavailable in this preview', {
+        exact: true,
+      })
+      .click();
+    await expect(
+      chat.getByRole('button', { name: 'Try controls locally' }),
+    ).toBeVisible();
+    await expect(
+      chat.getByRole('checkbox', {
+        name: 'Never include screen in this window',
+      }),
+    ).not.toBeChecked();
+    const closed = chat.waitForEvent('close');
+    await chat.getByRole('button', { name: 'Close chat' }).click();
+    await closed;
+    const opened = app.waitForEvent('window');
+    await overlay.evaluate(() => window.companionWindow.openChat());
+    const fresh = await opened;
+    await fresh
+      .getByText('Screen context · unavailable in this preview', {
+        exact: true,
+      })
+      .click();
+    await expect(
+      fresh.getByRole('button', { name: 'Try controls locally' }),
+    ).toBeVisible();
+    await expect(
+      fresh.getByRole('checkbox', {
+        name: 'Never include screen in this window',
+      }),
+    ).not.toBeChecked();
+    await expect(
+      fresh.getByRole('checkbox', { name: 'Include screen for next message' }),
+    ).toBeDisabled();
+    await send(fresh);
+    await ready(fresh);
+  });
 });
