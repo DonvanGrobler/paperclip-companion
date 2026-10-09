@@ -131,11 +131,17 @@ test('close hides the companion and app quit exits while hidden', async () => {
     application = await electron.launch({
       args: ['.', `--user-data-dir=${profile}`],
     });
+    const diagnostics: string[] = [];
+    application.process().stderr?.on('data', (chunk: Buffer) => {
+      if (chunk.toString().includes('TRAY_UNAVAILABLE'))
+        diagnostics.push('TRAY_UNAVAILABLE');
+    });
     const page = await application.firstWindow();
     const nativeWindow = await application.browserWindow(page);
     await expect
       .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
       .toBe(true);
+    expect(diagnostics, 'Tray initializes on the Windows runner').toEqual([]);
     await page.getByRole('button', { name: 'Close companion' }).click();
     await expect
       .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
@@ -146,6 +152,7 @@ test('close hides the companion and app quit exits while hidden', async () => {
       .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
       .toBe(true);
     expect(application.windows()).toHaveLength(1);
+    expect(diagnostics, 'Tray initializes on the Windows runner').toEqual([]);
     await page.getByRole('button', { name: 'Close companion' }).click();
     await expect
       .poll(() => nativeWindow.evaluate((w) => w.isVisible()))

@@ -63,6 +63,9 @@ describe('actual main-process wiring', () => {
   it('creates a sandboxed window without a privileged bridge and closes cleanly', async () => {
     await start();
     expect(mocks.installTray).toHaveBeenCalledWith(mocks.window);
+    expect(mocks.installTray.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.window.loadURL.mock.invocationCallOrder[0]!,
+    );
     expect(mocks.app.enableSandbox).toHaveBeenCalledOnce();
     expect(mocks.BrowserWindow).toHaveBeenCalledWith(
       expect.objectContaining({

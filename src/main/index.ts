@@ -86,9 +86,10 @@ app
     window.webContents.on('will-attach-webview', (event) =>
       event.preventDefault(),
     );
+    // Install close handling before the renderer can become interactive.
+    installTray(window);
     window.once('ready-to-show', () => window.showInactive());
     await window.loadURL('paperclip://app/index.html');
-    installTray(window);
   })
   .catch(() => {
     // Fixed code only: no URL, private window title, path, or payload in diagnostics.
