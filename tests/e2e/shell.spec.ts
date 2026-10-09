@@ -72,7 +72,14 @@ test('bundled shell renders with a closed renderer boundary', async () => {
     expect(isolation).toEqual({
       require: 'undefined',
       process: 'undefined',
-      bridge: ['close', 'openChat', 'copyText'],
+      bridge: [
+        'close',
+        'openChat',
+        'copyText',
+        'chatStart',
+        'chatNext',
+        'chatCancel',
+      ],
       close: 'function',
     });
     const blocked = await page.evaluate(async () => {
@@ -220,7 +227,9 @@ test('chat preview supports keyboard, cancellation, retry, copy and fresh reopen
     await input.press('Enter');
     await expect(chat.getByText('Preparing a sample reply…')).toBeVisible();
     await chat.getByRole('button', { name: 'Stop', exact: true }).click();
-    await expect(chat.getByText('Stopped. No request was sent.')).toBeVisible();
+    await expect(
+      chat.getByText('Stopped. Nothing was sent to an external service.'),
+    ).toBeVisible();
     await expect(input).toBeFocused();
     await chat.getByRole('button', { name: 'Retry', exact: true }).click();
     await expect(
@@ -234,14 +243,16 @@ test('chat preview supports keyboard, cancellation, retry, copy and fresh reopen
       await application.evaluate(
         async ({ clipboard }) => await clipboard.readText(),
       ),
-    ).toContain('local preview');
+    ).toBe('A pivot table summarizes grouped data.');
     expect(
       await overlay.evaluate(() => window.companionWindow.copyText('denied')),
     ).toBe(false);
     await chat.getByLabel('Preview scenario').selectOption('error');
     await input.fill('<script>window.__injected = true</script>');
     await input.press('Enter');
-    await expect(chat.getByRole('alert')).toContainText('Simulated error');
+    await expect(chat.getByRole('alert')).toContainText(
+      'Simulated offline error',
+    );
     expect(
       await chat.evaluate(() => Reflect.get(window, '__injected')),
     ).toBeUndefined();

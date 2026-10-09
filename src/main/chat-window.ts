@@ -5,6 +5,7 @@ import {
   screen,
   type Session,
 } from 'electron';
+import { installChatStream } from './chat-ipc';
 import { CHAT_URL, installCloseControl, trustedWindow } from './close-control';
 import { installDisplayRecovery, recoverWindow } from './display-recovery';
 import { lockWindow, windowPreferences } from './window-security';
@@ -36,6 +37,7 @@ export function createChatOpener(session: Session): () => void {
     lockWindow(window);
     installDisplayRecovery(window, true);
     installCloseControl(window, CHAT_URL);
+    installChatStream(window);
     ipcMain.handle('companion:copy', async (event, ...args: unknown[]) => {
       const text = args[0];
       if (

@@ -10,7 +10,14 @@ it('exposes only a fixed close action without forwarding arguments or Electron o
   expect(m.exposeInMainWorld).toHaveBeenCalledOnce();
   const [name, api] = m.exposeInMainWorld.mock.calls[0]!;
   expect(name).toBe('companionWindow');
-  expect(Object.keys(api)).toEqual(['close', 'openChat', 'copyText']);
+  expect(Object.keys(api)).toEqual([
+    'close',
+    'openChat',
+    'copyText',
+    'chatStart',
+    'chatNext',
+    'chatCancel',
+  ]);
   api.close('ignored');
   expect(m.send).toHaveBeenCalledExactlyOnceWith('companion:close');
   api.openChat('ignored');
@@ -18,4 +25,15 @@ it('exposes only a fixed close action without forwarding arguments or Electron o
   m.invoke.mockResolvedValue(true);
   expect(await api.copyText('sample')).toBe(true);
   expect(m.invoke).toHaveBeenCalledWith('companion:copy', 'sample');
+  for (const [name, channel] of [
+    ['chatStart', 'start'],
+    ['chatNext', 'next'],
+    ['chatCancel', 'cancel'],
+  ]) {
+    await api[name!]('payload', 'ignored');
+    expect(m.invoke).toHaveBeenLastCalledWith(
+      `companion:chat-${channel}`,
+      'payload',
+    );
+  }
 });

@@ -1,47 +1,80 @@
+import { MAX_REPLY_LENGTH, type ChatErrorCode } from '../core/chat-protocol';
+import { MAX_PROMPT_LENGTH } from '../core/provider';
 export type ChatStatus = 'idle' | 'typing' | 'complete' | 'stopped' | 'error';
 export interface ChatState {
   status: ChatStatus;
   prompt: string;
   response: string;
   run: number;
+  error: ChatErrorCode | null;
 }
 export const initialChat: ChatState = {
   status: 'idle',
   prompt: '',
   response: '',
   run: 0,
+  error: null,
 };
-export const PREVIEW_REPLY =
-  'This is a local preview, not an AI answer. Your message stayed on this computer. You can copy this sample, try another message, or clear the conversation. No screen was captured.';
 type Action =
   | { type: 'submit'; prompt: string }
   | { type: 'stop' | 'retry' | 'clear' }
-  | { type: 'complete' | 'error'; run: number };
+  | { type: 'chunk'; run: number; text: string }
+  | { type: 'complete'; run: number }
+  | { type: 'error'; run: number; code: ChatErrorCode };
 export function chatReducer(state: ChatState, action: Action): ChatState {
   switch (action.type) {
     case 'submit': {
       const prompt = action.prompt.trim();
-      if (!prompt || prompt.length > 2000 || state.status === 'typing')
+      if (
+        !prompt ||
+        action.prompt.length > MAX_PROMPT_LENGTH ||
+        state.status === 'typing'
+      )
         return state;
-      return { status: 'typing', prompt, response: '', run: state.run + 1 };
+      return {
+        status: 'typing',
+        prompt,
+        response: '',
+        run: state.run + 1,
+        error: null,
+      };
     }
     case 'stop':
       return state.status === 'typing'
-        ? { ...state, status: 'stopped', run: state.run + 1 }
+        ? {
+            ...state,
+            status: 'stopped',
+            run: state.run + 1,
+            error: 'CANCELLED',
+          }
         : state;
     case 'retry':
       return state.status === 'stopped' || state.status === 'error'
-        ? { ...state, status: 'typing', run: state.run + 1 }
+        ? {
+            ...state,
+            status: 'typing',
+            response: '',
+            error: null,
+            run: state.run + 1,
+          }
         : state;
     case 'clear':
       return { ...initialChat, run: state.run + 1 };
+    case 'chunk':
     case 'complete':
     case 'error':
       if (state.status !== 'typing' || action.run !== state.run) return state;
-      return {
-        ...state,
-        status: action.type,
-        response: action.type === 'complete' ? PREVIEW_REPLY : '',
-      };
+      if (action.type === 'chunk') {
+        if (state.response.length + action.text.length > MAX_REPLY_LENGTH)
+          return { ...state, status: 'error', error: 'INTERNAL' };
+        return { ...state, response: state.response + action.text };
+      }
+      if (action.type === 'error')
+        return {
+          ...state,
+          status: action.code === 'CANCELLED' ? 'stopped' : 'error',
+          error: action.code,
+        };
+      return { ...state, status: 'complete' };
   }
 }

@@ -457,8 +457,8 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 | Phase | Status | Gate | Evidence location |
 |---|---|---|---|
 | P0 Foundation | Verified at c8b53a7 | G0 passed (#18) | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
-| P1 Desktop shell | P1-01–03 merged; P1-04 in review (#30) | G1 open; Windows display checks pending | [P1-04](docs/evidence/P1-04.md), [Quit follow-up](docs/evidence/P1-03-quit.md) |
-| P2 Model-neutral chat | P2-01 contract/mock exploration in review (#32); UI not wired | G2 not evaluated; G1 remains open | [P2-01](docs/evidence/P2-01.md) |
+| P1 Desktop shell | P1-01–04 merged; physical display evidence pending (#30) | G1 open; Windows display checks pending | [P1-04](docs/evidence/P1-04.md), [Quit follow-up](docs/evidence/P1-03-quit.md) |
+| P2 Model-neutral chat | P2-01 merged; P2-02 main-owned streaming in review (#34) | G2 not evaluated; G1 remains open | [P2-01](docs/evidence/P2-01.md), [P2-02](docs/evidence/P2-02.md) |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
 | P4 Provider integration | Not started | G4 not evaluated | TBD |
 | P5 Security/polish | Not started | G5 not evaluated | TBD |

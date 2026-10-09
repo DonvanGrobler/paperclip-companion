@@ -1,10 +1,11 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
+import { CHAT_ERRORS, type ChatScenario } from '../core/chat-protocol';
 import { chatReducer, initialChat } from './chat-state';
 
 export function Chat() {
   const [state, dispatch] = useReducer(chatReducer, initialChat);
   const [draft, setDraft] = useState('');
-  const [scenario, setScenario] = useState('reply');
+  const [scenario, setScenario] = useState<ChatScenario>('reply');
   const [copyStatus, setCopyStatus] = useState('');
   const input = useRef<HTMLTextAreaElement>(null);
   const copyAttempt = useRef(0);
@@ -13,16 +14,34 @@ export function Chat() {
   }, []);
   useEffect(() => {
     if (state.status !== 'typing') return;
-    const timer = window.setTimeout(
-      () =>
-        dispatch({
-          type: scenario === 'error' ? 'error' : 'complete',
-          run: state.run,
-        }),
-      1500,
-    );
-    return () => window.clearTimeout(timer);
-  }, [state.run, state.status, scenario]);
+    let live = true;
+    const run = state.run;
+    const consume = async () => {
+      try {
+        const accepted = await window.companionWindow.chatStart({
+          run,
+          prompt: state.prompt,
+          scenario,
+        });
+        if (!live) return;
+        if (!accepted) throw new Error('START_REJECTED');
+        while (live) {
+          const event = await window.companionWindow.chatNext(run);
+          if (!live) return;
+          if (!event) throw new Error('STREAM_ENDED');
+          dispatch({ ...event, run });
+          if (event.type !== 'chunk') return;
+        }
+      } catch {
+        if (live) dispatch({ type: 'error', run, code: 'INTERNAL' });
+      }
+    };
+    void consume();
+    return () => {
+      live = false;
+      void window.companionWindow.chatCancel(run).catch(() => {});
+    };
+  }, [state.run, state.status, state.prompt, scenario]);
   useEffect(() => {
     copyAttempt.current++;
     setCopyStatus('');
@@ -62,8 +81,8 @@ export function Chat() {
     idle: 'Ready for a preview message.',
     typing: 'Preparing a sample reply…',
     complete: 'Sample reply ready.',
-    stopped: 'Stopped. No request was sent.',
-    error: 'Simulated error. Nothing was sent. Choose Sample reply and retry.',
+    stopped: CHAT_ERRORS.CANCELLED,
+    error: CHAT_ERRORS[state.error ?? 'INTERNAL'],
   }[state.status];
   return (
     <main className="chat-shell">
@@ -77,9 +96,12 @@ export function Chat() {
         </button>
       </header>
       <p className="chat-notice">
-        Try the chat controls with a fixed sample reply. No AI is connected and
-        no screen is captured. Only the latest exchange is kept while this
-        window is open.
+        Try streamed, scripted replies from the offline mock provider. These are
+        not AI answers. No screen is captured and nothing leaves this computer.
+        Only the latest exchange is kept in memory while this window is open.
+      </p>
+      <p className="chat-notice">
+        Provider: Offline mock · Text only · No account connected
       </p>
       <div className="chat-options">
         <label htmlFor="scenario">Preview scenario</label>
@@ -87,10 +109,14 @@ export function Chat() {
           id="scenario"
           value={scenario}
           disabled={state.status === 'typing'}
-          onChange={(e) => setScenario(e.target.value)}
+          onChange={(e) => setScenario(e.target.value as ChatScenario)}
         >
           <option value="reply">Sample reply</option>
-          <option value="error">Simulated error</option>
+          <option value="error">Offline error</option>
+          <option value="auth">Expired sign-in</option>
+          <option value="rate">Rate limit</option>
+          <option value="vision">Images unsupported</option>
+          <option value="cancel">Provider cancellation</option>
         </select>
         <button onClick={clear}>Clear conversation</button>
       </div>
