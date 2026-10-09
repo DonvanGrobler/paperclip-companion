@@ -379,6 +379,8 @@ Statuses: `Backlog → Ready → In progress → In review → Verified → Done
 
 **Agent prohibition list:** Do not disable/rewrite tests merely to green the pipeline; do not fake command output; do not commit secrets, private screenshots or copyrighted Clippy assets; do not change authentication routes or provider terms handling without an ADR; do not silently add tools that execute desktop actions; do not turn on background capture; do not claim manual testing without a real Windows interactive session.
 
+Verification ownership and phase-level human checkpoints are recorded in [verification ownership](docs/test-plan/verification-ownership.md). Routine agent/CI verification proceeds autonomously; pending human evidence stays explicit and does not waive the section 4 promotion gates.
+
 ### 6.4 CI required checks
 
 Suggested protected-branch checks: `format`, `lint`, `typecheck`, `unit`, `contracts`, `electron-integration-windows`, `dependency-and-secret-scan`, `license-check`, `build-windows`. UI tests requiring a live Windows desktop and provider authorization are separate **manual release gates**, not falsely declared covered by headless CI. CI must use mock credentials and synthetic images. Cache locked dependencies; pin actions to reviewed versions/commit SHA where practical; keep CI permissions minimal.
@@ -456,7 +458,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 |---|---|---|---|
 | P0 Foundation | Verified at c8b53a7 | G0 passed (#18) | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
 | P1 Desktop shell | P1-01–03 merged; P1-04 in review (#30) | G1 open; Windows display checks pending | [P1-04](docs/evidence/P1-04.md), [Quit follow-up](docs/evidence/P1-03-quit.md) |
-| P2 Model-neutral chat | Not started | G2 not evaluated | TBD |
+| P2 Model-neutral chat | P2-01 contract/mock exploration in review (#32); UI not wired | G2 not evaluated; G1 remains open | [P2-01](docs/evidence/P2-01.md) |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
 | P4 Provider integration | Not started | G4 not evaluated | TBD |
 | P5 Security/polish | Not started | G5 not evaluated | TBD |
