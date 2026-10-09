@@ -66,12 +66,14 @@ test('bundled shell renders with a closed renderer boundary', async () => {
     const isolation = await page.evaluate(() => ({
       require: typeof Reflect.get(window, 'require'),
       process: typeof Reflect.get(window, 'process'),
-      bridge: typeof Reflect.get(window, 'paperclip'),
+      bridge: Object.keys(window.companionWindow),
+      close: typeof window.companionWindow.close,
     }));
     expect(isolation).toEqual({
       require: 'undefined',
       process: 'undefined',
-      bridge: 'undefined',
+      bridge: ['close'],
+      close: 'function',
     });
     const blocked = await page.evaluate(async () => {
       try {
@@ -147,7 +149,7 @@ test('close hides the companion and app quit exits while hidden', async () => {
     ).toBeGreaterThan(0);
     const closeProbe = await nativeWindow.evaluateHandle((w) => {
       const state = { emitted: false, prevented: false };
-      w.on('close', (e) => {
+      w.on('close', (e: { defaultPrevented: boolean }) => {
         state.emitted = true;
         state.prevented = e.defaultPrevented;
       });

@@ -1,7 +1,12 @@
+import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => {
-  const webContents = { setWindowOpenHandler: vi.fn(), on: vi.fn() };
+  const webContents = {
+    setWindowOpenHandler: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+  };
   const window = {
     webContents,
     once: vi.fn(),
@@ -18,6 +23,7 @@ const mocks = vi.hoisted(() => {
   };
   return {
     installTray: vi.fn(),
+    ipcMain: { on: vi.fn(), removeListener: vi.fn() },
     window,
     shellSession,
     readFile: vi.fn(),
@@ -60,7 +66,7 @@ async function start() {
 }
 
 describe('actual main-process wiring', () => {
-  it('creates a sandboxed window without a privileged bridge and closes cleanly', async () => {
+  it('creates a sandboxed window with a narrow close bridge and closes cleanly', async () => {
     await start();
     expect(mocks.installTray).toHaveBeenCalledWith(mocks.window);
     expect(mocks.installTray.mock.invocationCallOrder[0]).toBeLessThan(
@@ -83,6 +89,7 @@ describe('actual main-process wiring', () => {
         hasShadow: false,
         webPreferences: {
           session: mocks.shellSession,
+          preload: path.join('/app', 'dist/main/preload.cjs'),
           sandbox: true,
           contextIsolation: true,
           nodeIntegration: false,

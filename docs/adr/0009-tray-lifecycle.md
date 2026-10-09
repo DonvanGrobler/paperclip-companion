@@ -17,8 +17,11 @@ that Windows is actually displaying the notification icon; Explorer restart and
 notification overflow therefore require manual checks.
 
 Open chat and Preferences are disabled and explicitly marked as forthcoming until
-P1-03/P1-04 implement them. The optional global shortcut is deferred. No renderer
-bridge is needed for tray operations. No new dependency, permission, capture,
+P1-03/P1-04 implement them. The optional global shortcut is deferred. Tray operations themselves need no renderer bridge. The close button uses the
+fixed companionWindow.close action through a sandboxed preload. Main accepts
+no arguments and checks the owning webContents, exact main-frame identity and
+exact bundled document URL before calling BrowserWindow.close. Destroying the
+webContents removes its handler. No raw IPC or Electron object reaches React. No new dependency, permission, capture,
 provider, persistence, network access or credential data path is introduced.
 Existing sandbox, CSP and all denial handlers remain in force.
 
@@ -35,3 +38,17 @@ Full chat/preferences windows here would prematurely expand this small issue.
 
 Primary references checked: [Tray](https://www.electronjs.org/docs/latest/api/tray)
 and [nativeImage](https://www.electronjs.org/docs/latest/api/native-image).
+
+## Native-close correction
+
+Windows CI at b1e2465 and ad5d7da found renderer window.close destroyed the window
+instead of taking the cancellable native path. Moving setup earlier did not solve
+it. Electron's WebContents::CloseContents implementation emits its own close event
+and then destroys the webContents. Therefore the renderer close control must use
+the narrow bridge above. Native Alt+F4 still uses the ordinary close handler.
+The E2E test now asserts the actual native close event was prevented, the window
+is retained and hidden, activation reopens it and quit exits while hidden.
+
+Source inspected: [Electron CloseContents](https://github.com/electron/electron/blob/main/shell/browser/api/electron_api_web_contents.cc).
+This revises the initial no-IPC implementation choice; it grants only control over
+the application's own close action, with wrong-sender/frame/URL/payload tests.

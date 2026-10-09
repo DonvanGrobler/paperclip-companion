@@ -20,7 +20,7 @@ function App() {
         <button
           className="close"
           aria-label="Close companion"
-          onClick={() => window.close()}
+          onClick={() => window.companionWindow.close()}
         >
           ×
         </button>

@@ -6,9 +6,9 @@ export default defineConfig({
     emptyOutDir: true,
     target: 'node24',
     lib: {
-      entry: 'src/main/index.ts',
+      entry: { index: 'src/main/index.ts', preload: 'src/preload/index.ts' },
       formats: ['cjs'],
-      fileName: () => 'index.cjs',
+      fileName: (_format, entryName) => `${entryName}.cjs`,
     },
     rollupOptions: { external: [/^node:/, 'electron'] },
   },

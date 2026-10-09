@@ -31,7 +31,7 @@ The combined check runs formatting, lint, strict TypeScript, unit tests with cov
 
 Read [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) and [AGENTS.md](AGENTS.md) before working. The [scaffold decision](docs/adr/0006-scaffold-toolchain.md), [Windows matrix](docs/test-plan/windows-11.md), [dependency inventory](docs/research/P0-02-dependencies.md) and [verification record](docs/evidence/P0-02.md) explain the current foundation. G0 remains open.
 
-The shell loads bundled content with a sandboxed renderer and no privileged bridge. Screen capture, account authorization and application network access will require their own reviewed implementation in later phases.
+The shell loads bundled content with a sandboxed renderer and a validated, close-only window bridge. Screen capture, account authorization and application network access will require their own reviewed implementation in later phases.
 
 ## Reuse and licensing
 
