@@ -1,11 +1,16 @@
+import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => {
-  const webContents = { setWindowOpenHandler: vi.fn(), on: vi.fn() };
+  const webContents = {
+    setWindowOpenHandler: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+  };
   const window = {
     webContents,
     once: vi.fn(),
-    show: vi.fn(),
+    showInactive: vi.fn(),
     loadURL: vi.fn(),
   };
   const shellSession = {
@@ -17,6 +22,8 @@ const mocks = vi.hoisted(() => {
     protocol: { handle: vi.fn() },
   };
   return {
+    installTray: vi.fn(),
+    ipcMain: { on: vi.fn(), removeListener: vi.fn() },
     window,
     shellSession,
     readFile: vi.fn(),
@@ -34,9 +41,15 @@ const mocks = vi.hoisted(() => {
     protocol: { registerSchemesAsPrivileged: vi.fn() },
     session: { fromPartition: vi.fn(() => shellSession) },
     Menu: { setApplicationMenu: vi.fn() },
+    screen: {
+      getPrimaryDisplay: vi.fn(() => ({
+        workArea: { x: 0, y: 0, width: 1920, height: 1040 },
+      })),
+    },
   };
 });
 vi.mock('electron', () => mocks);
+vi.mock('../../src/main/tray', () => ({ installTray: mocks.installTray }));
 vi.mock('node:fs/promises', () => ({ readFile: mocks.readFile }));
 
 beforeEach(() => {
@@ -53,13 +66,30 @@ async function start() {
 }
 
 describe('actual main-process wiring', () => {
-  it('creates a sandboxed window without a privileged bridge and closes cleanly', async () => {
+  it('creates a sandboxed window with a narrow close bridge and closes cleanly', async () => {
     await start();
+    expect(mocks.installTray).toHaveBeenCalledWith(mocks.window);
+    expect(mocks.installTray.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.window.loadURL.mock.invocationCallOrder[0]!,
+    );
     expect(mocks.app.enableSandbox).toHaveBeenCalledOnce();
     expect(mocks.BrowserWindow).toHaveBeenCalledWith(
       expect.objectContaining({
+        x: 1616,
+        y: 676,
+        width: 280,
+        height: 340,
+        frame: false,
+        transparent: true,
+        resizable: false,
+        maximizable: false,
+        fullscreenable: false,
+        alwaysOnTop: true,
+        skipTaskbar: false,
+        hasShadow: false,
         webPreferences: {
           session: mocks.shellSession,
+          preload: path.join('/app', 'dist/main/preload.cjs'),
           sandbox: true,
           contextIsolation: true,
           nodeIntegration: false,
@@ -78,7 +108,7 @@ describe('actual main-process wiring', () => {
       'paperclip://app/index.html',
     );
     mocks.window.once.mock.calls[0]![1]();
-    expect(mocks.window.show).toHaveBeenCalledOnce();
+    expect(mocks.window.showInactive).toHaveBeenCalledOnce();
     mocks.app.on.mock.calls.find(
       ([name]) => name === 'window-all-closed',
     )![1]();

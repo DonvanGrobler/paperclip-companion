@@ -26,18 +26,54 @@ test('bundled shell renders with a closed renderer boundary', async () => {
       })
       .toBe(true);
     await expect(
-      page.getByRole('heading', { name: 'Foundation preview' }),
+      page.getByRole('heading', { name: 'Companion preview' }),
     ).toBeVisible();
     expect(page.url()).toBe('paperclip://app/index.html');
+    expect(
+      await nativeWindow.evaluate((window) => ({
+        alwaysOnTop: window.isAlwaysOnTop(),
+        resizable: window.isResizable(),
+        bounds: window.getBounds(),
+      })),
+    ).toMatchObject({
+      alwaysOnTop: true,
+      resizable: false,
+      bounds: { width: 280, height: 340 },
+    });
+    await page.getByRole('button', { name: 'Say hello' }).click();
+    await expect(page.getByRole('status')).toHaveText('Hello there!');
+    await expect(page.locator('main')).toHaveAttribute('data-state', 'idle');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(
+      await page
+        .locator('.wire')
+        .evaluate((element) => getComputedStyle(element).animationName),
+    ).toBe('none');
+    expect(
+      await page
+        .locator('.handle')
+        .evaluate((element) =>
+          getComputedStyle(element).getPropertyValue('-webkit-app-region'),
+        ),
+    ).toBe('drag');
+    expect(
+      await page
+        .getByRole('button', { name: 'Close companion' })
+        .evaluate((element) =>
+          getComputedStyle(element).getPropertyValue('-webkit-app-region'),
+        ),
+    ).toBe('no-drag');
     const isolation = await page.evaluate(() => ({
       require: typeof Reflect.get(window, 'require'),
       process: typeof Reflect.get(window, 'process'),
-      bridge: typeof Reflect.get(window, 'paperclip'),
+      bridge: Object.keys(window.companionWindow),
+      close: typeof window.companionWindow.close,
     }));
     expect(isolation).toEqual({
       require: 'undefined',
       process: 'undefined',
-      bridge: 'undefined',
+      bridge: ['close'],
+      close: 'function',
     });
     const blocked = await page.evaluate(async () => {
       try {
@@ -82,8 +118,73 @@ test('bundled shell renders with a closed renderer boundary', async () => {
       prevented: true,
       url: 'paperclip://app/index.html',
       visible: true,
-      heading: 'Foundation preview',
+      heading: 'Companion preview',
     });
+  } finally {
+    await application?.close();
+    await rm(profile, { recursive: true, force: true });
+  }
+});
+
+test('close hides the companion and app quit exits while hidden', async () => {
+  const profile = await mkdtemp(path.join(os.tmpdir(), 'paperclip-close-'));
+  let application: ElectronApplication | undefined;
+  try {
+    application = await electron.launch({
+      args: ['.', `--user-data-dir=${profile}`],
+    });
+    const diagnostics: string[] = [];
+    application.process().stderr?.on('data', (chunk: Buffer) => {
+      if (chunk.toString().includes('TRAY_UNAVAILABLE'))
+        diagnostics.push('TRAY_UNAVAILABLE');
+    });
+    const page = await application.firstWindow();
+    const nativeWindow = await application.browserWindow(page);
+    await expect
+      .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
+      .toBe(true);
+    expect(diagnostics, 'Tray initializes on the Windows runner').toEqual([]);
+    expect(
+      await nativeWindow.evaluate((w) => w.listenerCount('close')),
+    ).toBeGreaterThan(0);
+    const closeProbe = await nativeWindow.evaluateHandle((w) => {
+      const state = { emitted: false, prevented: false };
+      w.on('close', (e: { defaultPrevented: boolean }) => {
+        state.emitted = true;
+        state.prevented = e.defaultPrevented;
+      });
+      return { state, window: w };
+    });
+    await page.getByRole('button', { name: 'Close companion' }).click();
+    await expect
+      .poll(() =>
+        closeProbe.evaluate(({ state, window: w }) => ({
+          ...state,
+          destroyed: w.isDestroyed(),
+          visible: w.isDestroyed() ? null : w.isVisible(),
+        })),
+      )
+      .toEqual({
+        emitted: true,
+        prevented: true,
+        destroyed: false,
+        visible: false,
+      });
+    expect(await nativeWindow.evaluate((w) => w.isDestroyed())).toBe(false);
+    await application.evaluate(({ app }) => app.emit('activate'));
+    await expect
+      .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
+      .toBe(true);
+    expect(application.windows()).toHaveLength(1);
+    expect(diagnostics, 'Tray initializes on the Windows runner').toEqual([]);
+    await page.getByRole('button', { name: 'Close companion' }).click();
+    await expect
+      .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
+      .toBe(false);
+    const closed = application.waitForEvent('close');
+    await application.evaluate(({ app }) => app.quit());
+    await closed;
+    application = undefined;
   } finally {
     await application?.close();
     await rm(profile, { recursive: true, force: true });
