@@ -16,6 +16,15 @@ test('bundled shell renders with a closed renderer boundary', async () => {
       args: ['.', `--user-data-dir=${profile}`],
     });
     const page = await application.firstWindow();
+    const nativeWindow = await application.browserWindow(page);
+    // DOM visibility does not imply that Electron's ready-to-show handler ran.
+    // Observe the real window without forcing it open or weakening the assertion.
+    await expect
+      .poll(() => nativeWindow.evaluate((window) => window.isVisible()), {
+        message: 'Electron shell becomes natively visible',
+        timeout: 10_000,
+      })
+      .toBe(true);
     await expect(
       page.getByRole('heading', { name: 'Foundation preview' }),
     ).toBeVisible();

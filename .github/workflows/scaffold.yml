@@ -28,4 +28,4 @@ jobs:
       - run: npm audit --audit-level=high
       - name: Electron shell smoke
         if: runner.os == 'Windows'
-        run: npm run test:e2e
+        run: npm run test:e2e -- --repeat-each=3
