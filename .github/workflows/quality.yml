@@ -1,0 +1,61 @@
+name: Quality gates
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  dependencies:
+    name: dependency-and-license-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version-file: .nvmrc
+      - run: npm install --global npm@11.9.0
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=high
+      - run: npm run check:licenses
+  secrets:
+    name: secret-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install pinned Gitleaks CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          tool_dir="${RUNNER_TEMP}/paperclip-gitleaks"
+          mkdir -p "$tool_dir"
+          curl --fail --silent --show-error --location \
+            https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz \
+            --output "$tool_dir/gitleaks.tar.gz"
+          echo '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  '"$tool_dir/gitleaks.tar.gz" | sha256sum --check
+          tar --no-same-owner -xzf "$tool_dir/gitleaks.tar.gz" -C "$tool_dir" gitleaks
+          echo "$tool_dir" >> "$GITHUB_PATH"
+      - name: Verify scanner rejects a synthetic private-key marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          probe_dir=$(mktemp -d)
+          trap 'rm -rf "$probe_dir"' EXIT
+          printf '%s%s\n' '-----BEGIN ' 'PRIVATE KEY-----' > "$probe_dir/probe.txt"
+          printf '%064d\n' 0 >> "$probe_dir/probe.txt"
+          printf '%s%s\n' '-----END ' 'PRIVATE KEY-----' >> "$probe_dir/probe.txt"
+          set +e
+          gitleaks dir "$probe_dir" --no-banner --redact=100 --exit-code=23
+          scan_result=$?
+          set -e
+          test "$scan_result" -eq 23
+      - name: Scan full repository history with redacted findings
+        run: gitleaks git . --log-opts="--all" --no-banner --redact=100

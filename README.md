@@ -1,17 +1,45 @@
 # Paperclip Companion
 
-A planned Windows-first desktop helper for user-initiated chat and single-shot screen context.
+An independent Windows-first desktop helper for user-initiated chat and single-shot screen context. The project is in early development and is not affiliated with or endorsed by Microsoft or OpenAI.
 
-Development is starting from the supplied planning pack. There is no runnable application or release yet. The first work item is the reuse and license inventory, P0-01.
+## Test the current preview
 
-This is an independent hobby project, not affiliated with or endorsed by Microsoft or OpenAI. Microsoft Clippy artwork is not included.
+The app is currently on an unmerged review branch. Follow the [Windows 11 G0 walkthrough](docs/test-plan/G0-windows-walkthrough.md) to clone the exact CI-verified commit, run the checks and return the [results form](docs/test-plan/G0-results-template.md). The [G0 checklist](docs/test-plan/G0-status.md) separates your manual evidence from the engineering work still pending.
 
-## Development status
+## Run the foundation preview
 
-P0-01 research is ready for maintainer review. No application code, dependency installation, Windows build or real-provider test has been completed. G0 has not passed.
+Install Node **24.19.0** and npm **11.9.0**, then from the repository directory run:
 
-- Read [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) and [AGENTS.md](AGENTS.md) before starting work.
-- Review the [reuse and license inventory](docs/research/P0-01-reuse-inventory.md), [provisional architecture decision](docs/adr/0001-desktop-runtime.md) and [verification record](docs/evidence/P0-01.md).
-- Next issue is P0-02, the clean Electron scaffold and Windows 11 test matrix.
+```sh
+npm ci
+npm start
+```
 
-A project-wide license will be established during foundation work. Public visibility is not a claim that third-party character art or restricted SDK code can be redistributed. None is included here.
+The app opens a simple desktop window. Chat, the character, tray access, screen capture and provider connections are not implemented yet. No third-party accounts are needed. There is no installer or signed release.
+
+npm start rebuilds the bundled renderer and main process before launching Electron. A desktop session is required. Windows 11 x64 is the intended initial target; interactive Windows validation is still pending. No Windows 10, ARM64 or Linux product support is claimed.
+
+## Verify changes
+
+```sh
+npm run check
+npm run test:e2e
+npm audit --audit-level=high
+```
+
+The combined check runs formatting, lint, strict TypeScript, unit tests with coverage and production builds. The separate Electron smoke test needs a desktop session and uses a temporary profile. Builds go to dist/main and dist/renderer. There is no development web server or hot reload yet.
+
+Read [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) and [AGENTS.md](AGENTS.md) before working. The [scaffold decision](docs/adr/0006-scaffold-toolchain.md), [Windows matrix](docs/test-plan/windows-11.md), [dependency inventory](docs/research/P0-02-dependencies.md) and [verification record](docs/evidence/P0-02.md) explain the current foundation. G0 remains open.
+
+The shell loads bundled content with a sandboxed renderer and no privileged bridge. Screen capture, account authorization and application network access will require their own reviewed implementation in later phases.
+
+## Reuse and licensing
+
+See the [upstream inventory](docs/research/P0-01-reuse-inventory.md) and [provisional clean-scaffold decision](docs/adr/0001-desktop-runtime.md). No Microsoft Clippy art or restricted DevKit source is included. The application license is pending P0-03; the private UNLICENSED package marker prevents accidental publication and does not change dependency licenses.
+
+## Project guidance
+
+- [Contributing](CONTRIBUTING.md) — scope, checks and review workflow.
+- [Privacy notice draft](PRIVACY.md) — current behavior and future requirements.
+- [License register](docs/licensing/register.md) and [MIT proposal](docs/licensing/project-license-proposal.md) — review status and third-party boundaries.
+- [ADR template](docs/adr/template.md) — record technical, privacy and license decisions.

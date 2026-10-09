@@ -2,7 +2,7 @@
 
 **Version:** 1.0 (planning baseline)
 **Date:** 9 October 2026
-**Status:** P0 research in progress; P0-01 in review; application implementation **not started**
+**Status:** P0 foundation in progress; P0-01, P0-02 and P0-03 in review; minimal shell implemented
 **Working title:** Paperclip Companion (temporary; final name and art are open decisions)
 **Owner:** Project maintainer
 **Project type:** Free, hobby-led, publicly available source code; no backend service by default
@@ -454,7 +454,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 | Phase | Status | Gate | Evidence location |
 |---|---|---|---|
-| P0 Foundation | In progress — P0-01 in review | G0 not evaluated | [P0-01 evidence](docs/evidence/P0-01.md) |
+| P0 Foundation | In progress — P0-01, P0-02 and P0-03 in review | G0 not evaluated | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
 | P1 Desktop shell | Not started | G1 not evaluated | TBD |
 | P2 Model-neutral chat | Not started | G2 not evaluated | TBD |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
@@ -464,7 +464,15 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 **Current work:** P0-01 research and license inventory is In review in [issue #1](https://github.com/DonvanGrobler/paperclip-companion/issues/1). See the [inventory](docs/research/P0-01-reuse-inventory.md) and [provisional ADR](docs/adr/0001-desktop-runtime.md). No risk-specific maintainer approval or gate completion is claimed.
 
-**Next smallest engineering step:** P0-02 architecture/bootstrap. Retain the clean-scaffold recommendation as provisional until review; no upstream source or artwork is approved for copying. G0 remains not evaluated. Do not begin with polishing a copyrighted Clippy sprite or implementing always-on screen capture.
+**P0-02 work:** Minimal Electron scaffold, pinned dependencies, isolation tests and Windows matrix implemented for [issue #3](https://github.com/DonvanGrobler/paperclip-companion/issues/3). See [evidence](docs/evidence/P0-02.md) and [provisional toolchain ADR](docs/adr/0006-scaffold-toolchain.md). Windows 11 human validation passed at `e353a45` on Windows 11 Pro build 26200 x64; [report](docs/evidence/G0-windows-11-e353a45.md). The same report records an automated Electron visibility failure, tracked in issue #7.
+
+**P0-03 work:** Foundation documentation and Windows G0 handoff are In review in [issue #5](https://github.com/DonvanGrobler/paperclip-companion/issues/5). Use the [Windows walkthrough](docs/test-plan/G0-windows-walkthrough.md) and [G0 checklist](docs/test-plan/G0-status.md). The project-license proposal remains unadopted pending review.
+
+**P0-04 work:** Quality gates implemented in [issue #9](https://github.com/DonvanGrobler/paperclip-companion/issues/9); see [evidence](docs/evidence/P0-04.md) and [required-check setup](docs/test-plan/P0-04-quality-gates.md). Repository enforcement and risk review remain outstanding.
+
+**P0-05 work:** Synthetic screenshots and deterministic provider event fixtures implemented in [issue #11](https://github.com/DonvanGrobler/paperclip-companion/issues/11); [evidence](docs/evidence/P0-05.md). No production provider/capture feature is implemented.
+
+**Next smallest engineering step:** Resolve G0 review/enforcement and final candidate evidence before P1 promotion. Issue #7 visibility synchronization passed three Windows CI launches; the maintainer confirmed all three Windows 11 automated runs passed at `8935e46` ([report](docs/evidence/G0-windows-11-8935e46.md)). P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
 
 ### Weekly/review-session project update template
 
