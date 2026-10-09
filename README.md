@@ -31,7 +31,7 @@ The combined check runs formatting, lint, strict TypeScript, unit tests with cov
 
 Read [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md) and [AGENTS.md](AGENTS.md) before working. The [scaffold decision](docs/adr/0006-scaffold-toolchain.md), [Windows matrix](docs/test-plan/windows-11.md), [dependency inventory](docs/research/P0-02-dependencies.md) and [verification record](docs/evidence/P0-02.md) explain the current foundation. G0 remains open.
 
-The shell loads bundled content with a sandboxed renderer and a validated, close-only window bridge. Screen capture, account authorization and application network access will require their own reviewed implementation in later phases.
+The shell loads bundled content with a sandboxed renderer and a validated window-control bridge. Screen capture, account authorization and application network access will require their own reviewed implementation in later phases.
 
 ## Reuse and licensing
 
@@ -53,7 +53,17 @@ This branch adds an original teal character in a compact transparent overlay. Dr
 Use the Paperclip Companion notification icon to **Show**, **Hide**, **Recover**
 (back onto the primary display), or **Quit**. Close and Alt+F4 hide to the tray;
 Quit exits the application. If tray setup fails, closing the window exits normally.
-Windows may put the icon under its hidden-icons arrow. Chat and Preferences menu
-items are explicitly disabled until their planned implementation. See the
+Windows may put the icon under its hidden-icons arrow. Open chat is available in P1-03; Preferences remains disabled until its planned implementation. See the
 [Windows tray checklist](docs/test-plan/P1-02-windows.md). The character remains
 placeholder artwork, not the final nostalgic design.
+
+### Local chat preview (P1-03)
+
+Choose **Open chat** on the character or tray. The separate window demonstrates
+Send, Stop, Retry, Copy and Clear with a fixed local sample response. Select
+**Simulated error** to try recovery, then switch back to **Sample reply** and Retry.
+Enter sends and Shift+Enter adds a line. No AI is connected and nothing is sent.
+Only the latest exchange is retained while this window is open; closing or Clear
+removes it. Copied text remains on the system clipboard and may be retained by
+Windows clipboard history. Preferences and saved positions remain forthcoming.
+See the [Windows chat checklist](docs/test-plan/P1-03-windows.md).

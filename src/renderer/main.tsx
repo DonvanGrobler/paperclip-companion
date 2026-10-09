@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
+import { Chat } from './chat';
 
 function App() {
   const [greeting, setGreeting] = useState(false);
@@ -65,6 +66,12 @@ function App() {
         <p role="status" aria-live="polite">
           {greeting ? 'Hello there!' : 'A little help, close at hand.'}
         </p>
+        <button
+          className="hello"
+          onClick={() => window.companionWindow.openChat()}
+        >
+          Open chat
+        </button>
         <button className="hello" onClick={() => setGreeting(true)}>
           Say hello
         </button>
@@ -78,6 +85,6 @@ const root = document.getElementById('root');
 if (!root) throw new Error('SHELL_ROOT_MISSING');
 createRoot(root).render(
   <StrictMode>
-    <App />
+    {window.location.pathname === '/chat.html' ? <Chat /> : <App />}
   </StrictMode>,
 );
