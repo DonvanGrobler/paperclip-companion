@@ -1,0 +1,173 @@
+{
+  "review_date": "2026-10-09",
+  "scope": "P0-01 source inspection only; no upstream material adopted",
+  "repositories": [
+    {
+      "repository": "felixrieseberg/clippy",
+      "revision": "edb47a46c1f0d9b36436e8537013dc91e8ade89f",
+      "commit_date": "2025-11-15T15:32:47-08:00",
+      "archived_at_review": false,
+      "reviewed_files": [
+        {
+          "path": "LICENSE.md",
+          "sha256": "22c8cc275d151f24684466d708e7e4d197e39f9f4c6db5ad5a5b6fec16f39a40",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/LICENSE.md"
+        },
+        {
+          "path": "README.md",
+          "sha256": "61530974b6873dd14e4abe0d879ffec70029c05117d71a52c8501b95e165651d",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/README.md"
+        },
+        {
+          "path": "package.json",
+          "sha256": "938c3b5292fe9e949ba03f1fe93884c49761fe17f8f051d515dbc7622bdfeb47",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/package.json"
+        },
+        {
+          "path": ".github/workflows/build.yml",
+          "sha256": "e97ee9dddd8b3f193193eca00be6f33e77f566f0ed0fee0a30c353d2a7045b62",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/.github/workflows/build.yml"
+        },
+        {
+          "path": "src/main/windows.ts",
+          "sha256": "9c04c03e7d00770ed9b3dd1faab56e455c613caa270cc0a754f5257bbfbfb795",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/src/main/windows.ts"
+        },
+        {
+          "path": "src/main/ipc.ts",
+          "sha256": "7e2e5c2231b42a769f75bdf99a5a62e561750149a5f76541d98aef94afd3956f",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/src/main/ipc.ts"
+        },
+        {
+          "path": "src/renderer/preload.ts",
+          "sha256": "54bf44cea2d32135f4e3b2ee63727595532fd06af034751f47f43a39e08c48f0",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/src/renderer/preload.ts"
+        },
+        {
+          "path": "src/main/chats.ts",
+          "sha256": "2bd0ebd3dcd48cfd7e2baf2beacc64a4d723013ca0b851ef119064b25b64292d",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/src/main/chats.ts"
+        },
+        {
+          "path": "src/renderer/clippy-animation-helpers.tsx",
+          "sha256": "af7c967895e6d026b41f94c671d20aa3aeedf896a6ad5fc5f23baf744a63a135",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/src/renderer/clippy-animation-helpers.tsx"
+        },
+        {
+          "path": "src/renderer/clippy-animations.tsx",
+          "sha256": "f718ba3ae9e895f1a895384b86fdb019af5043e79746f1bec180d74c1c2d36a1",
+          "url": "https://github.com/felixrieseberg/clippy/blob/edb47a46c1f0d9b36436e8537013dc91e8ade89f/src/renderer/clippy-animations.tsx"
+        }
+      ],
+      "adopted_files": []
+    },
+    {
+      "repository": "RaymonDev/clippy",
+      "revision": "8a490bb3509c11598b0d6aa8e3d2dc018d357cb8",
+      "commit_date": "2026-02-15T15:47:02+01:00",
+      "archived_at_review": false,
+      "reviewed_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "f18b46941c8cdffa7f084858b3a8e3667e6eeebc48a9379c37d1426b542ec413",
+          "url": "https://github.com/RaymonDev/clippy/blob/8a490bb3509c11598b0d6aa8e3d2dc018d357cb8/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "sha256": "321295e3a335ab1d67a2bbf06ea9d4a9123a1fb605fd21ba3abd9072f1462bbc",
+          "url": "https://github.com/RaymonDev/clippy/blob/8a490bb3509c11598b0d6aa8e3d2dc018d357cb8/README.md"
+        },
+        {
+          "path": "requirements.txt",
+          "sha256": "22b53c659ae1db1928f060ee635339e0444ea9465e61bf517323b0c0acb84b77",
+          "url": "https://github.com/RaymonDev/clippy/blob/8a490bb3509c11598b0d6aa8e3d2dc018d357cb8/requirements.txt"
+        },
+        {
+          "path": "clippy.py",
+          "sha256": "2ff4a1268c3d90d3a6f207fe56c8ab44497e4825ebe412e1f3451540685ef212",
+          "url": "https://github.com/RaymonDev/clippy/blob/8a490bb3509c11598b0d6aa8e3d2dc018d357cb8/clippy.py"
+        },
+        {
+          "path": "clippy.pyw",
+          "sha256": "b07e403aa7b75416638cab041accc0b4a114fadff1915f40f077e07e3bca915c",
+          "url": "https://github.com/RaymonDev/clippy/blob/8a490bb3509c11598b0d6aa8e3d2dc018d357cb8/clippy.pyw"
+        }
+      ],
+      "adopted_files": []
+    },
+    {
+      "repository": "openai/sign-in-with-chatgpt-devkit",
+      "revision": "0a36fefeb913055c8c7a1a29b63d82b96b2e841a",
+      "commit_date": "2026-10-07T09:37:23-07:00",
+      "archived_at_review": false,
+      "reviewed_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "d12fe9f3c01626a133398d70e672b5591c38b1819f3da852b1e3ef8da606facd",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/LICENSE"
+        },
+        {
+          "path": "README.md",
+          "sha256": "7ac9c1dfce6642bba41f6770bf59e337cf1ebcbc442b04fefda05f0c7d970564",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/README.md"
+        },
+        {
+          "path": "package.json",
+          "sha256": "5be5ffadfb5cd533201a110502d7c948344b0ff88557248f6dae38d5566d051c",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/package.json"
+        },
+        {
+          "path": "packages/local/LICENSE",
+          "sha256": "d12fe9f3c01626a133398d70e672b5591c38b1819f3da852b1e3ef8da606facd",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/packages/local/LICENSE"
+        },
+        {
+          "path": "packages/react/LICENSE",
+          "sha256": "d12fe9f3c01626a133398d70e672b5591c38b1819f3da852b1e3ef8da606facd",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/packages/react/LICENSE"
+        },
+        {
+          "path": "examples/paste-perfect/LICENSE",
+          "sha256": "d12fe9f3c01626a133398d70e672b5591c38b1819f3da852b1e3ef8da606facd",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/examples/paste-perfect/LICENSE"
+        },
+        {
+          "path": "examples/component-gallery/LICENSE",
+          "sha256": "d12fe9f3c01626a133398d70e672b5591c38b1819f3da852b1e3ef8da606facd",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/examples/component-gallery/LICENSE"
+        },
+        {
+          "path": "packages/local/package.json",
+          "sha256": "40fe0d9ae5c51b19897d87783b9735aaf9af80677d7d840f78fff890b1b759f2",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/packages/local/package.json"
+        },
+        {
+          "path": "packages/react/package.json",
+          "sha256": "b7b4efa51411a5d646f6b4b377437054d8e00fc17bf8a50ee48778d03fb054cd",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/packages/react/package.json"
+        },
+        {
+          "path": "assets/README.md",
+          "sha256": "96187eed522034e09b6243060edb4818206016feb41f3f86a56599cf6daba96f",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/assets/README.md"
+        },
+        {
+          "path": "assets/fonts/inter-OFL.txt",
+          "sha256": "5b9321a4298cfeb6b34354164a1c3afc3db114569984c502b9b35d988fd58c57",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/assets/fonts/inter-OFL.txt"
+        },
+        {
+          "path": "assets/fonts/open-sans-OFL.txt",
+          "sha256": "fbbbcfef55318de350562559b671360de6d597112ecc5c73881b05092db89602",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/assets/fonts/open-sans-OFL.txt"
+        },
+        {
+          "path": "docs/security.md",
+          "sha256": "cadb68e2f499ff41f0b72a7ad418c55d11c8c45f3b3e54b2add41a19eb484dfc",
+          "url": "https://github.com/openai/sign-in-with-chatgpt-devkit/blob/0a36fefeb913055c8c7a1a29b63d82b96b2e841a/docs/security.md"
+        }
+      ],
+      "adopted_files": []
+    }
+  ]
+}
