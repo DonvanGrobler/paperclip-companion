@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+test-results
+playwright-report
+package-lock.json
+# Preserve supplied planning and completed research artifacts.
+AGENTS.md
+DEVELOPMENT_PLAN.md
+docs/research/P0-01-reuse-inventory.md
+docs/research/upstream-sources.json
+docs/evidence/P0-01.md
+docs/adr/0001-desktop-runtime.md
