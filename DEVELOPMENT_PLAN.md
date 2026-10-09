@@ -2,7 +2,7 @@
 
 **Version:** 1.0 (planning baseline)
 **Date:** 9 October 2026
-**Status:** P0 foundation in progress; P0-01 and P0-02 in review; minimal shell implemented
+**Status:** P0 foundation in progress; P0-01, P0-02 and P0-03 in review; minimal shell implemented
 **Working title:** Paperclip Companion (temporary; final name and art are open decisions)
 **Owner:** Project maintainer
 **Project type:** Free, hobby-led, publicly available source code; no backend service by default
@@ -454,7 +454,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 | Phase | Status | Gate | Evidence location |
 |---|---|---|---|
-| P0 Foundation | In progress — P0-01 and P0-02 in review | G0 not evaluated | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md) |
+| P0 Foundation | In progress — P0-01, P0-02 and P0-03 in review | G0 not evaluated | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
 | P1 Desktop shell | Not started | G1 not evaluated | TBD |
 | P2 Model-neutral chat | Not started | G2 not evaluated | TBD |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
@@ -466,7 +466,9 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 **P0-02 work:** Minimal Electron scaffold, pinned dependencies, isolation tests and Windows matrix implemented for [issue #3](https://github.com/DonvanGrobler/paperclip-companion/issues/3). See [evidence](docs/evidence/P0-02.md) and [provisional toolchain ADR](docs/adr/0006-scaffold-toolchain.md). Windows 11 interactive validation remains pending.
 
-**Next smallest engineering step:** P0-03 foundation documentation, then complete the P0-04 quality gates and P0-05 fixtures. P0-02 includes only the local checks and focused CI necessary to verify the scaffold. G0 remains not evaluated. No upstream source or artwork is approved for copying.
+**P0-03 work:** Foundation documentation and Windows G0 handoff are In review in [issue #5](https://github.com/DonvanGrobler/paperclip-companion/issues/5). Use the [Windows walkthrough](docs/test-plan/G0-windows-walkthrough.md) and [G0 checklist](docs/test-plan/G0-status.md). The project-license proposal remains unadopted pending review.
+
+**Next smallest engineering step:** Complete P0-04 quality gates, then P0-05 synthetic fixtures. P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and human Windows evidence. No upstream source or artwork is approved for copying.
 
 ### Weekly/review-session project update template
 
