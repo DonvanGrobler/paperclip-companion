@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "synthetic": true,
+  "cases": [
+    {
+      "id": "text-success",
+      "input": {
+        "prompt": "What is a pivot table?",
+        "screenId": null
+      },
+      "events": [
+        {
+          "type": "chunk",
+          "text": "A pivot table "
+        },
+        {
+          "type": "chunk",
+          "text": "summarizes grouped data."
+        },
+        {
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "id": "vision-success",
+      "input": {
+        "prompt": "Why is this formula failing?",
+        "screenId": "spreadsheet-error"
+      },
+      "events": [
+        {
+          "type": "chunk",
+          "text": "The synthetic sheet shows B1 is zero. "
+        },
+        {
+          "type": "chunk",
+          "text": "Check the divisor before dividing."
+        },
+        {
+          "type": "done"
+        }
+      ]
+    },
+    {
+      "id": "offline",
+      "input": {
+        "prompt": "Synthetic request",
+        "screenId": null
+      },
+      "events": [
+        {
+          "type": "error",
+          "code": "OFFLINE"
+        }
+      ]
+    },
+    {
+      "id": "token-expired",
+      "input": {
+        "prompt": "Synthetic request",
+        "screenId": null
+      },
+      "events": [
+        {
+          "type": "error",
+          "code": "AUTH_EXPIRED"
+        }
+      ]
+    },
+    {
+      "id": "rate-limit",
+      "input": {
+        "prompt": "Synthetic request",
+        "screenId": null
+      },
+      "events": [
+        {
+          "type": "error",
+          "code": "RATE_LIMITED"
+        }
+      ]
+    },
+    {
+      "id": "vision-unsupported",
+      "input": {
+        "prompt": "Synthetic request",
+        "screenId": "settings"
+      },
+      "events": [
+        {
+          "type": "error",
+          "code": "VISION_UNSUPPORTED"
+        }
+      ]
+    },
+    {
+      "id": "cancel",
+      "input": {
+        "prompt": "Synthetic request",
+        "screenId": null
+      },
+      "events": [
+        {
+          "type": "chunk",
+          "text": "Partial synthetic response."
+        },
+        {
+          "type": "cancelled"
+        }
+      ]
+    }
+  ]
+}

@@ -470,7 +470,9 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 **P0-04 work:** Quality gates implemented in [issue #9](https://github.com/DonvanGrobler/paperclip-companion/issues/9); see [evidence](docs/evidence/P0-04.md) and [required-check setup](docs/test-plan/P0-04-quality-gates.md). Repository enforcement and risk review remain outstanding.
 
-**Next smallest engineering step:** Complete P0-05 synthetic fixtures. Issue #7 visibility synchronization passed three Windows CI launches; corrected Windows 11 automated rerun remains pending. P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
+**P0-05 work:** Synthetic screenshots and deterministic provider event fixtures implemented in [issue #11](https://github.com/DonvanGrobler/paperclip-companion/issues/11); [evidence](docs/evidence/P0-05.md). No production provider/capture feature is implemented.
+
+**Next smallest engineering step:** Resolve G0 review/enforcement and final candidate evidence before P1 promotion. Issue #7 visibility synchronization passed three Windows CI launches; corrected Windows 11 automated rerun remains pending. P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
 
 ### Weekly/review-session project update template
 
