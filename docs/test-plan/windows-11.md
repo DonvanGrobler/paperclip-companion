@@ -2,6 +2,8 @@
 
 P0-02 establishes this matrix. All human-run rows below are **not performed**. Record actual edition/build, CPU architecture, display scaling, Node/npm versions, commit, commands and redacted evidence when executing them. Do not substitute a hosted Windows Server runner for Windows 11 interactive validation.
 
+Use the [step-by-step guide](G0-windows-walkthrough.md) and [results form](G0-results-template.md) to execute and report this matrix. The [G0 checklist](G0-status.md) records the other closure requirements.
+
 ## Automated scaffold checks
 
 CI runs npm ci, npm run check and npm audit --audit-level=high on Linux and Windows hosted runners. Windows additionally runs npm run test:e2e. That smoke test launches a temporary profile, renders the shell, checks absence of Node/bridge access, and exercises blocked renderer fetch, popups and navigation. Main-process unit tests check sandbox/permission/session wiring. Automated results must be read from the exact commit's Actions run before marking passed.

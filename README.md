@@ -2,6 +2,10 @@
 
 An independent Windows-first desktop helper for user-initiated chat and single-shot screen context. The project is in early development and is not affiliated with or endorsed by Microsoft or OpenAI.
 
+## Test the current preview
+
+The app is currently on an unmerged review branch. Follow the [Windows 11 G0 walkthrough](docs/test-plan/G0-windows-walkthrough.md) to clone the exact CI-verified commit, run the checks and return the [results form](docs/test-plan/G0-results-template.md). The [G0 checklist](docs/test-plan/G0-status.md) separates your manual evidence from the engineering work still pending.
+
 ## Run the foundation preview
 
 Install Node **24.19.0** and npm **11.9.0**, then from the repository directory run:
@@ -32,3 +36,10 @@ The shell loads bundled content with a sandboxed renderer and no privileged brid
 ## Reuse and licensing
 
 See the [upstream inventory](docs/research/P0-01-reuse-inventory.md) and [provisional clean-scaffold decision](docs/adr/0001-desktop-runtime.md). No Microsoft Clippy art or restricted DevKit source is included. The application license is pending P0-03; the private UNLICENSED package marker prevents accidental publication and does not change dependency licenses.
+
+## Project guidance
+
+- [Contributing](CONTRIBUTING.md) — scope, checks and review workflow.
+- [Privacy notice draft](PRIVACY.md) — current behavior and future requirements.
+- [License register](docs/licensing/register.md) and [MIT proposal](docs/licensing/project-license-proposal.md) — review status and third-party boundaries.
+- [ADR template](docs/adr/template.md) — record technical, privacy and license decisions.
