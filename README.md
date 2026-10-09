@@ -43,3 +43,7 @@ See the [upstream inventory](docs/research/P0-01-reuse-inventory.md) and [provis
 - [Privacy notice draft](PRIVACY.md) — current behavior and future requirements.
 - [License register](docs/licensing/register.md) and [MIT proposal](docs/licensing/project-license-proposal.md) — review status and third-party boundaries.
 - [ADR template](docs/adr/template.md) — record technical, privacy and license decisions.
+
+## P1-01 exploratory companion preview
+
+This branch adds an original teal character in a compact transparent overlay. Drag its handle or body, select **Say hello** for a local greeting, and use the close button or Alt+F4 to quit. Taskbar access remains available. Chat, tray controls and saved placement are later tasks. See the [Windows overlay checklist](docs/test-plan/P1-01-windows.md) and [art provenance](docs/licensing/P1-01-character.md). The earlier G0 walkthrough refers to the separately pinned foundation version.

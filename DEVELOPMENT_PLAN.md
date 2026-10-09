@@ -455,7 +455,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 | Phase | Status | Gate | Evidence location |
 |---|---|---|---|
 | P0 Foundation | In progress — P0-01, P0-02 and P0-03 in review | G0 not evaluated | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
-| P1 Desktop shell | Not started | G1 not evaluated | TBD |
+| P1 Desktop shell | P1-01 exploratory implementation in review (#20) | G1 not evaluated | [P1-01](docs/evidence/P1-01.md) |
 | P2 Model-neutral chat | Not started | G2 not evaluated | TBD |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
 | P4 Provider integration | Not started | G4 not evaluated | TBD |
@@ -502,3 +502,6 @@ Official, current references must be rechecked before implementing provider/capt
 - Prior art for evaluation only — [felixrieseberg/clippy](https://github.com/felixrieseberg/clippy), [RaymonDev/clippy](https://github.com/RaymonDev/clippy). Existing public repositories and their LICENSE files **do not** automatically authorize third-party character images.
 
 **Disclaimer:** This is a technical and project-risk document, not a legal opinion. Terms, model eligibility and APIs can change. Legal or licensing blockers are not waived because the project is free, nostalgic or a hobby.
+
+
+**P1-01 exploration:** Original character and transparent draggable overlay implemented in #20 with [evidence](docs/evidence/P1-01.md). G0 review/enforcement remains tracked in #18; section 4 permits exploration without baseline promotion. No tray, chat, provider or capture capability is claimed.

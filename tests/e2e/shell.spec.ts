@@ -26,9 +26,43 @@ test('bundled shell renders with a closed renderer boundary', async () => {
       })
       .toBe(true);
     await expect(
-      page.getByRole('heading', { name: 'Foundation preview' }),
+      page.getByRole('heading', { name: 'Companion preview' }),
     ).toBeVisible();
     expect(page.url()).toBe('paperclip://app/index.html');
+    expect(
+      await nativeWindow.evaluate((window) => ({
+        alwaysOnTop: window.isAlwaysOnTop(),
+        resizable: window.isResizable(),
+        bounds: window.getBounds(),
+      })),
+    ).toMatchObject({
+      alwaysOnTop: true,
+      resizable: false,
+      bounds: { width: 280, height: 340 },
+    });
+    await page.getByRole('button', { name: 'Say hello' }).click();
+    await expect(page.getByRole('status')).toHaveText('Hello there!');
+    await expect(page.locator('main')).toHaveAttribute('data-state', 'idle');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(
+      await page
+        .locator('.wire')
+        .evaluate((element) => getComputedStyle(element).animationName),
+    ).toBe('none');
+    expect(
+      await page
+        .locator('.handle')
+        .evaluate((element) =>
+          getComputedStyle(element).getPropertyValue('-webkit-app-region'),
+        ),
+    ).toBe('drag');
+    expect(
+      await page
+        .getByRole('button', { name: 'Close companion' })
+        .evaluate((element) =>
+          getComputedStyle(element).getPropertyValue('-webkit-app-region'),
+        ),
+    ).toBe('no-drag');
     const isolation = await page.evaluate(() => ({
       require: typeof Reflect.get(window, 'require'),
       process: typeof Reflect.get(window, 'process'),
@@ -82,8 +116,26 @@ test('bundled shell renders with a closed renderer boundary', async () => {
       prevented: true,
       url: 'paperclip://app/index.html',
       visible: true,
-      heading: 'Foundation preview',
+      heading: 'Companion preview',
     });
+  } finally {
+    await application?.close();
+    await rm(profile, { recursive: true, force: true });
+  }
+});
+
+test('close control exits the companion process', async () => {
+  const profile = await mkdtemp(path.join(os.tmpdir(), 'paperclip-close-'));
+  let application: ElectronApplication | undefined;
+  try {
+    application = await electron.launch({
+      args: ['.', `--user-data-dir=${profile}`],
+    });
+    const page = await application.firstWindow();
+    const closed = application.waitForEvent('close');
+    await page.getByRole('button', { name: 'Close companion' }).click();
+    await closed;
+    application = undefined;
   } finally {
     await application?.close();
     await rm(profile, { recursive: true, force: true });

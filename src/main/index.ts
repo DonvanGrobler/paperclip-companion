@@ -1,6 +1,7 @@
-import { app, BrowserWindow, Menu, protocol, session } from 'electron';
+import { app, BrowserWindow, Menu, protocol, session, screen } from 'electron';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { initialOverlayBounds } from './overlay-layout';
 import { CONTENT_SECURITY_POLICY, resolveResource } from './resource-policy';
 
 // Keep the renderer sandbox in every launch, including tests.
@@ -53,13 +54,18 @@ app
     });
     Menu.setApplicationMenu(null);
     const window = new BrowserWindow({
-      width: 760,
-      height: 540,
-      minWidth: 480,
-      minHeight: 360,
+      ...initialOverlayBounds(screen.getPrimaryDisplay().workArea),
+      frame: false,
+      transparent: true,
+      resizable: false,
+      maximizable: false,
+      fullscreenable: false,
+      alwaysOnTop: true,
+      skipTaskbar: false,
+      hasShadow: false,
       title: 'Paperclip Companion',
       show: false,
-      backgroundColor: '#f4f1e9',
+      backgroundColor: '#00000000',
       webPreferences: {
         session: shellSession,
         sandbox: true,
@@ -79,7 +85,7 @@ app
     window.webContents.on('will-attach-webview', (event) =>
       event.preventDefault(),
     );
-    window.once('ready-to-show', () => window.show());
+    window.once('ready-to-show', () => window.showInactive());
     await window.loadURL('paperclip://app/index.html');
   })
   .catch(() => {
