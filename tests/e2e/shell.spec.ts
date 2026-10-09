@@ -124,7 +124,7 @@ test('bundled shell renders with a closed renderer boundary', async () => {
   }
 });
 
-test('close control exits the companion process', async () => {
+test('close hides the companion and app quit exits while hidden', async () => {
   const profile = await mkdtemp(path.join(os.tmpdir(), 'paperclip-close-'));
   let application: ElectronApplication | undefined;
   try {
@@ -132,8 +132,26 @@ test('close control exits the companion process', async () => {
       args: ['.', `--user-data-dir=${profile}`],
     });
     const page = await application.firstWindow();
-    const closed = application.waitForEvent('close');
+    const nativeWindow = await application.browserWindow(page);
+    await expect
+      .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
+      .toBe(true);
     await page.getByRole('button', { name: 'Close companion' }).click();
+    await expect
+      .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
+      .toBe(false);
+    expect(await nativeWindow.evaluate((w) => w.isDestroyed())).toBe(false);
+    await application.evaluate(({ app }) => app.emit('activate'));
+    await expect
+      .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
+      .toBe(true);
+    expect(application.windows()).toHaveLength(1);
+    await page.getByRole('button', { name: 'Close companion' }).click();
+    await expect
+      .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
+      .toBe(false);
+    const closed = application.waitForEvent('close');
+    await application.evaluate(({ app }) => app.quit());
     await closed;
     application = undefined;
   } finally {

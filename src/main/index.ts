@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Menu, protocol, session, screen } from 'electron';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { installTray } from './tray';
 import { initialOverlayBounds } from './overlay-layout';
 import { CONTENT_SECURITY_POLICY, resolveResource } from './resource-policy';
 
@@ -87,6 +88,7 @@ app
     );
     window.once('ready-to-show', () => window.showInactive());
     await window.loadURL('paperclip://app/index.html');
+    installTray(window);
   })
   .catch(() => {
     // Fixed code only: no URL, private window title, path, or payload in diagnostics.

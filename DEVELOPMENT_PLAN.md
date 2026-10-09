@@ -505,3 +505,10 @@ Official, current references must be rechecked before implementing provider/capt
 
 
 **P1-01 exploration:** Original character and transparent draggable overlay implemented in #20 with [evidence](docs/evidence/P1-01.md). G0 review/enforcement remains tracked in #18; section 4 permits exploration without baseline promotion. No tray, chat, provider or capture capability is claimed.
+
+**P1-02 work:** Tray lifecycle and primary-display recovery implemented for issue
+#22, stacked on P1-01 PR #21. See [evidence](docs/evidence/P1-02.md),
+[ADR](docs/adr/0009-tray-lifecycle.md) and [Windows checklist](docs/test-plan/P1-02-windows.md).
+Open chat and Preferences remain disabled pending P1-03/P1-04. G1 remains open.
+The maintainer's P1-01 Windows checklist passed; placeholder artwork is explicitly
+not final-design approved. G0 closure is recorded in issue #18 and PR #19.

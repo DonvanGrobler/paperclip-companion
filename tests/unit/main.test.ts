@@ -17,6 +17,7 @@ const mocks = vi.hoisted(() => {
     protocol: { handle: vi.fn() },
   };
   return {
+    installTray: vi.fn(),
     window,
     shellSession,
     readFile: vi.fn(),
@@ -42,6 +43,7 @@ const mocks = vi.hoisted(() => {
   };
 });
 vi.mock('electron', () => mocks);
+vi.mock('../../src/main/tray', () => ({ installTray: mocks.installTray }));
 vi.mock('node:fs/promises', () => ({ readFile: mocks.readFile }));
 
 beforeEach(() => {
@@ -60,6 +62,7 @@ async function start() {
 describe('actual main-process wiring', () => {
   it('creates a sandboxed window without a privileged bridge and closes cleanly', async () => {
     await start();
+    expect(mocks.installTray).toHaveBeenCalledWith(mocks.window);
     expect(mocks.app.enableSandbox).toHaveBeenCalledOnce();
     expect(mocks.BrowserWindow).toHaveBeenCalledWith(
       expect.objectContaining({
