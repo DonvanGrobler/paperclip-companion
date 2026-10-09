@@ -39,20 +39,40 @@ const requested = (reason: ScreenIntentReason): ScreenIntent => ({
   reason,
 });
 
+function parseInput(value: unknown): ScreenIntentInput | null {
+  try {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      return null;
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) return null;
+    const descriptors = Object.getOwnPropertyDescriptors(value);
+    if (Object.keys(descriptors).some((key) => !keys.includes(key)))
+      return null;
+    const data: Record<string, unknown> = {};
+    for (const key of keys) {
+      const descriptor = descriptors[key];
+      // Never invoke an accessor supplied as a supposed data field.
+      if (!descriptor || !Object.hasOwn(descriptor, 'value')) return null;
+      data[key] = descriptor.value;
+    }
+    if (
+      typeof data.prompt !== 'string' ||
+      data.prompt.length > MAX_PROMPT_LENGTH ||
+      !data.prompt.trim() ||
+      keys.slice(1).some((key) => typeof data[key] !== 'boolean')
+    )
+      return null;
+    return data as unknown as ScreenIntentInput;
+  } catch {
+    // Unexpected reflective/proxy failures also fail closed without exception details.
+    return null;
+  }
+}
+
 /** Intent evidence only, NEVER capture/transmission authorization. No I/O or retained state. */
 export function classifyScreenIntent(value: unknown): ScreenIntent {
-  if (!value || typeof value !== 'object' || Array.isArray(value))
-    return textOnly('invalid-input');
-  const data = value as Record<string, unknown>;
-  if (
-    Object.keys(data).some((key) => !keys.includes(key)) ||
-    keys.some((key) => !Object.hasOwn(data, key)) ||
-    typeof data.prompt !== 'string' ||
-    data.prompt.length > MAX_PROMPT_LENGTH ||
-    !data.prompt.trim() ||
-    keys.slice(1).some((key) => typeof data[key] !== 'boolean')
-  )
-    return textOnly('invalid-input');
+  const data = parseInput(value);
+  if (!data) return textOnly('invalid-input');
   if (data.hardExcluded) return textOnly('excluded');
   if (data.neverIncludeScreen) return textOnly('never-include');
   if (!data.submitted) return textOnly('not-submitted');

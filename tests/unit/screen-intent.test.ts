@@ -9,6 +9,32 @@ const input = {
   neverIncludeScreen: false,
   includeScreen: false,
 };
+it('accepts plain null-prototype data but never reads accessor fields or exposes reflection errors', () => {
+  expect(
+    classifyScreenIntent(Object.assign(Object.create(null), input)).kind,
+  ).toBe('screen-context-requested');
+  let reads = 0;
+  const accessor = Object.defineProperty({ ...input }, 'prompt', {
+    get() {
+      reads++;
+      throw new Error('SYNTHETIC_PRIVATE_DETAIL');
+    },
+  });
+  const broken = new Proxy(
+    {},
+    {
+      ownKeys() {
+        throw new Error('SYNTHETIC_PRIVATE_DETAIL');
+      },
+    },
+  );
+  for (const value of [accessor, broken])
+    expect(classifyScreenIntent(value)).toEqual({
+      kind: 'text-only',
+      reason: 'invalid-input',
+    });
+  expect(reads).toBe(0);
+});
 it.each([
   ['What is on my screen?', 'screen-reference'],
   ['  PLEASE READ MY SCREEN.  ', 'screen-reference'],

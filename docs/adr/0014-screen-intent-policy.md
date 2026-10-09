@@ -10,7 +10,9 @@ this pure policy neither chooses nor implements them.
 Implement a stateless, deterministic function taking only a bounded prompt and
 explicit submitted/hardExcluded/neverIncludeScreen/includeScreen booleans. All
 five own fields are required. Reject unknown fields, wrong types, inherited-only
-fields, empty input and prompts over 2,000 UTF-16 code units before normalization.
+fields, accessors, non-plain prototypes, empty input and prompts over 2,000 UTF-16
+code units before normalization. Copy validated data descriptors without invoking
+getters; reflective failures return invalid-input without raw exception details.
 The text budget is shared with provider validation through a small constants module;
 the existing provider export is preserved. This lets Node's built-in TypeScript
 runner evaluate the policy without loading the provider's non-erasable class syntax
@@ -53,7 +55,9 @@ cases. Labels describe whether a request clearly asks for current visual context
 not whether capture is authorized. The six label clarifications happened before
 policy implementation. Final pre-implementation corpus SHA-256 is
 `290b167ba85aab54c3d424c2d08cf854d901534abee92921f0b1a16915ff5ed2`.
-No rule or label was tuned after evaluation. These are same-author curated cases,
+No language rule or label was tuned after evaluation. Direct review subsequently
+hardened non-plain/accessor input rejection without changing corpus predictions.
+These are same-author curated cases,
 with related phrasings across partitions, **not an independently authored, blinded
 or real-user benchmark**. The evaluation partition is held out from iterative rule
 fitting only. Stronger independent evaluation is required before enabling capture.
