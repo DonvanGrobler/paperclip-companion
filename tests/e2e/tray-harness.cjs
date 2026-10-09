@@ -10,6 +10,11 @@ const build = Menu.buildFromTemplate;
 Menu.buildFromTemplate = function (template) {
   const quit = template.find((item) => item.label === 'Quit');
   if (quit) globalThis.__paperclipTrayQuit = quit.click;
-  return build.call(this, template);
+  const menu = build.call(this, template);
+  if (quit) {
+    globalThis.__paperclipTrayMenu = menu;
+    globalThis.__paperclipTrayTemplate = template;
+  }
+  return menu;
 };
 require(path.join(root, 'dist/main/index.cjs'));

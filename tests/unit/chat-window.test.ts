@@ -33,6 +33,10 @@ const m = vi.hoisted(() => {
     },
   };
 });
+vi.mock('../../src/main/display-recovery', () => ({
+  installDisplayRecovery: vi.fn(),
+  recoverWindow: vi.fn(),
+}));
 vi.mock('electron', () => ({
   BrowserWindow: vi.fn(function (options) {
     m.create(options);
