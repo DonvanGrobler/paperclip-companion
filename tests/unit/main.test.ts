@@ -5,7 +5,7 @@ const mocks = vi.hoisted(() => {
   const window = {
     webContents,
     once: vi.fn(),
-    show: vi.fn(),
+    showInactive: vi.fn(),
     loadURL: vi.fn(),
   };
   const shellSession = {
@@ -34,6 +34,11 @@ const mocks = vi.hoisted(() => {
     protocol: { registerSchemesAsPrivileged: vi.fn() },
     session: { fromPartition: vi.fn(() => shellSession) },
     Menu: { setApplicationMenu: vi.fn() },
+    screen: {
+      getPrimaryDisplay: vi.fn(() => ({
+        workArea: { x: 0, y: 0, width: 1920, height: 1040 },
+      })),
+    },
   };
 });
 vi.mock('electron', () => mocks);
@@ -58,6 +63,18 @@ describe('actual main-process wiring', () => {
     expect(mocks.app.enableSandbox).toHaveBeenCalledOnce();
     expect(mocks.BrowserWindow).toHaveBeenCalledWith(
       expect.objectContaining({
+        x: 1616,
+        y: 676,
+        width: 280,
+        height: 340,
+        frame: false,
+        transparent: true,
+        resizable: false,
+        maximizable: false,
+        fullscreenable: false,
+        alwaysOnTop: true,
+        skipTaskbar: false,
+        hasShadow: false,
         webPreferences: {
           session: mocks.shellSession,
           sandbox: true,
@@ -78,7 +95,7 @@ describe('actual main-process wiring', () => {
       'paperclip://app/index.html',
     );
     mocks.window.once.mock.calls[0]![1]();
-    expect(mocks.window.show).toHaveBeenCalledOnce();
+    expect(mocks.window.showInactive).toHaveBeenCalledOnce();
     mocks.app.on.mock.calls.find(
       ([name]) => name === 'window-all-closed',
     )![1]();

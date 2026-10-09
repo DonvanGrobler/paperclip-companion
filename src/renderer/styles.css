@@ -1,57 +1,181 @@
 :root {
+  color: #233a44;
   font-family: system-ui, sans-serif;
-  color: #24352e;
-  background: #f4f1e9;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  background: transparent;
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
+  background: transparent;
+  overflow: hidden;
 }
-main {
-  max-width: 720px;
-  margin: auto;
-  padding: 44px;
+button {
+  font: inherit;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
 }
-.eyebrow {
-  letter-spacing: 0.16em;
-  font-size: 12px;
-  font-weight: 700;
+button:focus-visible {
+  outline: 3px solid #b35815;
+  outline-offset: 3px;
+}
+.companion {
+  width: 100%;
+  padding: 8px 12px;
+  text-align: center;
+  user-select: none;
+}
+.handle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #e9f2eff2;
+  border: 1px solid #b4cdc6;
+  font-size: 10px;
+  -webkit-app-region: drag;
+}
+.grip {
+  font-size: 17px;
+  color: #4c7c70;
+}
+.close {
+  margin-left: auto;
+  width: 26px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #233a44;
+  font-size: 21px;
+}
+.close:hover {
+  background: #ffd6c4;
+}
+.character-stage {
+  height: 180px;
+  -webkit-app-region: drag;
+}
+.character {
+  width: 158px;
+  height: 184px;
+  overflow: visible;
+}
+.shadow {
+  fill: #183e3522;
+}
+.wire {
+  transform-origin: 90px 170px;
+  animation: breathe 4s ease-in-out infinite;
+}
+.wire-outline,
+.wire-highlight {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wire-outline {
+  stroke: #215e55;
+  stroke-width: 15;
+}
+.wire-highlight {
+  stroke: #68bca5;
+  stroke-width: 7;
+}
+.face {
+  fill: #f8ead1;
+  stroke: #215e55;
+  stroke-width: 3;
+}
+.eyes {
+  fill: #233a44;
+}
+.smile {
+  fill: none;
+  stroke: #233a44;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+.badge {
+  fill: #ffc66d;
+  stroke: #215e55;
+  stroke-width: 3;
+}
+.badge-mark {
+  fill: none;
+  stroke: #215e55;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.bubble {
+  padding: 10px;
+  border: 1px solid #c9d9ce;
+  border-radius: 16px;
+  background: #fffdf6;
+  box-shadow: 0 3px 9px #16332914;
 }
 h1 {
-  font-size: clamp(30px, 5vw, 46px);
-  letter-spacing: -0.04em;
-  line-height: 1.12;
-  margin: 26px 0 16px;
-}
-.intro {
-  color: #56645c;
-  font-size: 18px;
-}
-section {
-  margin-top: 30px;
-  padding: 22px;
-  background: #fffdf6;
-  border: 1px solid #d3d7c8;
-  border-radius: 12px;
-}
-h2 {
-  font-size: 17px;
-  margin-top: 0;
-}
-p {
-  line-height: 1.55;
-}
-.privacy {
-  font-size: 13px;
-  color: #395641;
-  margin-bottom: 0;
-}
-footer {
-  margin-top: 24px;
-  color: #56645c;
+  margin: 0;
   font-size: 12px;
+  font-weight: 650;
+}
+.bubble p {
+  margin: 5px 0 8px;
+  font-size: 11px;
+  min-height: 16px;
+}
+.hello {
+  border: 1px solid #215e55;
+  border-radius: 20px;
+  background: #215e55;
+  color: #fff;
+  padding: 5px 18px;
+  font-size: 11px;
+}
+.hello:hover {
+  background: #153f39;
+}
+.hint {
+  margin: 7px 0 0;
+  font-size: 9px;
+  color: #1e473e;
+  background: #edf6efed;
+  border-radius: 6px;
+  padding: 3px;
+}
+[data-state='greeting'] .wire {
+  animation: greeting 500ms ease-in-out 2;
+}
+@keyframes breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes greeting {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-6deg);
+  }
+  70% {
+    transform: rotate(6deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wire,
+  [data-state='greeting'] .wire {
+    animation: none;
+  }
 }

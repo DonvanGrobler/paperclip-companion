@@ -455,7 +455,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 | Phase | Status | Gate | Evidence location |
 |---|---|---|---|
 | P0 Foundation | Verified at c8b53a7 | G0 passed (#18) | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
-| P1 Desktop shell | Not started | G1 not evaluated | TBD |
+| P1 Desktop shell | P1-01 exploratory implementation in review (#20) | G1 not evaluated | [P1-01](docs/evidence/P1-01.md) |
 | P2 Model-neutral chat | Not started | G2 not evaluated | TBD |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
 | P4 Provider integration | Not started | G4 not evaluated | TBD |
@@ -505,3 +505,5 @@ Official, current references must be rechecked before implementing provider/capt
 
 
 **9 October gate review:** Donvan delegated the security/licensing review. [Review findings](docs/evidence/G0-security-license-review.md) complete the foundation review and link green main CI at c8b53a7. G0 is tracked in #18; the initially missing enforcement was subsequently enabled and verified, closing the gate. P1 can proceed. No source-code license or binary release clearance is inferred.
+
+**P1-01 exploration:** Original character and transparent draggable overlay implemented in #20 with [evidence](docs/evidence/P1-01.md). No tray, chat, provider or capture capability is claimed.
