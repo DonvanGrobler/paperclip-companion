@@ -142,10 +142,32 @@ test('close hides the companion and app quit exits while hidden', async () => {
       .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
       .toBe(true);
     expect(diagnostics, 'Tray initializes on the Windows runner').toEqual([]);
+    expect(
+      await nativeWindow.evaluate((w) => w.listenerCount('close')),
+    ).toBeGreaterThan(0);
+    const closeProbe = await nativeWindow.evaluateHandle((w) => {
+      const state = { emitted: false, prevented: false };
+      w.on('close', (e) => {
+        state.emitted = true;
+        state.prevented = e.defaultPrevented;
+      });
+      return { state, window: w };
+    });
     await page.getByRole('button', { name: 'Close companion' }).click();
     await expect
-      .poll(() => nativeWindow.evaluate((w) => w.isVisible()))
-      .toBe(false);
+      .poll(() =>
+        closeProbe.evaluate(({ state, window: w }) => ({
+          ...state,
+          destroyed: w.isDestroyed(),
+          visible: w.isDestroyed() ? null : w.isVisible(),
+        })),
+      )
+      .toEqual({
+        emitted: true,
+        prevented: true,
+        destroyed: false,
+        visible: false,
+      });
     expect(await nativeWindow.evaluate((w) => w.isDestroyed())).toBe(false);
     await application.evaluate(({ app }) => app.emit('activate'));
     await expect
