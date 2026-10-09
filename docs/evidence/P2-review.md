@@ -98,6 +98,15 @@ inventory remains unchanged. G0 source-license/distribution limitations still ap
 under final candidate verification. G2 remains open for its candidate review and
 G1 prerequisite. No phase completion or promotion is inferred solely from test code.
 
+## Post-merge verification
+
+PR #37 merged to main 4060ef1. Required merged-main Scaffold run 37997535888 and
+Quality gates run 37997535861 passed. Final PR Windows evidence was 179 unit tests
+and 42 native E2E passes. Copilot review 5473375874 completed with zero open findings
+(COMMENTED, not approval); no inline findings or change requests. The maintainer
+merged the PR. The technical error matrix is verified, while the review's human-gate
+caveat remains: G1 is open and G2 baseline promotion has not been granted.
+
 **Next smallest independent issue:** P3-04 deterministic screen-intent policy and a
 synthetic held-out evaluation corpus, starting with fail-closed behavior and no
 capture/IPC integration. Consent/target/transmission contracts and real Windows

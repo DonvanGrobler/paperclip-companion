@@ -1,0 +1,44 @@
+{
+  "corpusVersion": 1,
+  "corpusSha256": "290b167ba85aab54c3d424c2d08cf854d901534abee92921f0b1a16915ff5ed2",
+  "synthetic": true,
+  "independentBenchmark": false,
+  "development": {
+    "total": 120,
+    "tp": 26,
+    "fp": 0,
+    "fn": 4,
+    "tn": 90,
+    "precision": 1,
+    "recall": 0.8666666666666667,
+    "precisionTargetMet": true,
+    "recallTargetMet": false,
+    "falsePositiveIds": [],
+    "missedRequestIds": [
+      "development-clear-27",
+      "development-clear-28",
+      "development-clear-29",
+      "development-clear-30"
+    ]
+  },
+  "evaluation": {
+    "total": 120,
+    "tp": 26,
+    "fp": 0,
+    "fn": 4,
+    "tn": 90,
+    "precision": 1,
+    "recall": 0.8666666666666667,
+    "precisionTargetMet": true,
+    "recallTargetMet": false,
+    "falsePositiveIds": [],
+    "missedRequestIds": [
+      "evaluation-clear-27",
+      "evaluation-clear-28",
+      "evaluation-clear-29",
+      "evaluation-clear-30"
+    ]
+  },
+  "captureEnabled": false,
+  "gate": "G3_OPEN_NO_CAPTURE_INTEGRATION"
+}
