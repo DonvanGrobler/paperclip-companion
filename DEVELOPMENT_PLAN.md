@@ -2,7 +2,7 @@
 
 **Version:** 1.0 (planning baseline)
 **Date:** 9 October 2026
-**Status:** P0 foundation in progress; P0-01, P0-02 and P0-03 in review; minimal shell implemented
+**Status:** P0 foundation verified; G0 passed; P1 implementation authorized
 **Working title:** Paperclip Companion (temporary; final name and art are open decisions)
 **Owner:** Project maintainer
 **Project type:** Free, hobby-led, publicly available source code; no backend service by default
@@ -454,7 +454,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 | Phase | Status | Gate | Evidence location |
 |---|---|---|---|
-| P0 Foundation | In progress — P0-01, P0-02 and P0-03 in review | G0 not evaluated | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
+| P0 Foundation | Verified at c8b53a7 | G0 passed (#18) | [P0-01](docs/evidence/P0-01.md), [P0-02](docs/evidence/P0-02.md), [P0-03](docs/evidence/P0-03.md) |
 | P1 Desktop shell | Not started | G1 not evaluated | TBD |
 | P2 Model-neutral chat | Not started | G2 not evaluated | TBD |
 | P3 Screen context | Not started | G3 not evaluated | TBD |
@@ -468,11 +468,11 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 **P0-03 work:** Foundation documentation and Windows G0 handoff are In review in [issue #5](https://github.com/DonvanGrobler/paperclip-companion/issues/5). Use the [Windows walkthrough](docs/test-plan/G0-windows-walkthrough.md) and [G0 checklist](docs/test-plan/G0-status.md). The project-license proposal remains unadopted pending review.
 
-**P0-04 work:** Quality gates implemented in [issue #9](https://github.com/DonvanGrobler/paperclip-companion/issues/9); see [evidence](docs/evidence/P0-04.md) and [required-check setup](docs/test-plan/P0-04-quality-gates.md). Repository enforcement and risk review remain outstanding.
+**P0-04 work:** Quality gates implemented in [issue #9](https://github.com/DonvanGrobler/paperclip-companion/issues/9); see [evidence](docs/evidence/P0-04.md) and [required-check setup](docs/test-plan/P0-04-quality-gates.md). Repository enforcement and delegated foundation review verified; see [G0 closure](docs/test-plan/G0-status.md).
 
 **P0-05 work:** Synthetic screenshots and deterministic provider event fixtures implemented in [issue #11](https://github.com/DonvanGrobler/paperclip-companion/issues/11); [evidence](docs/evidence/P0-05.md). No production provider/capture feature is implemented.
 
-**Next smallest engineering step:** Resolve G0 review/enforcement and final candidate evidence before P1 promotion. Issue #7 visibility synchronization passed three Windows CI launches; the maintainer confirmed all three Windows 11 automated runs passed at `8935e46` ([report](docs/evidence/G0-windows-11-8935e46.md)). P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
+**Next smallest engineering step:** P1-02 tray controls and show/hide recovery after P1-01 review. Issue #7 visibility synchronization passed three Windows CI launches; the maintainer confirmed all three Windows 11 automated runs passed at `8935e46` ([report](docs/evidence/G0-windows-11-8935e46.md)). P0-02 supplied only the checks needed for the scaffold. G0 passed after final main CI, Windows evidence, delegated review and required-check enforcement verification. No upstream source or artwork is approved for copying.
 
 ### Weekly/review-session project update template
 
@@ -502,3 +502,6 @@ Official, current references must be rechecked before implementing provider/capt
 - Prior art for evaluation only — [felixrieseberg/clippy](https://github.com/felixrieseberg/clippy), [RaymonDev/clippy](https://github.com/RaymonDev/clippy). Existing public repositories and their LICENSE files **do not** automatically authorize third-party character images.
 
 **Disclaimer:** This is a technical and project-risk document, not a legal opinion. Terms, model eligibility and APIs can change. Legal or licensing blockers are not waived because the project is free, nostalgic or a hobby.
+
+
+**9 October gate review:** Donvan delegated the security/licensing review. [Review findings](docs/evidence/G0-security-license-review.md) complete the foundation review and link green main CI at c8b53a7. G0 is tracked in #18; the initially missing enforcement was subsequently enabled and verified, closing the gate. P1 can proceed. No source-code license or binary release clearance is inferred.
