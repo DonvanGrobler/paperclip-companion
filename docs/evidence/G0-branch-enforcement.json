@@ -1,0 +1,65 @@
+{
+  "verifiedAt": "2026-10-09T15:45:00+02:00",
+  "branch": "main",
+  "commit": "c8b53a78bfb41c06f53241b4d518f487432b2418",
+  "protected": true,
+  "protection": {
+    "enabled": true,
+    "required_status_checks": {
+      "enforcement_level": "everyone",
+      "contexts": [
+        "dependency-and-license-scan",
+        "scaffold-windows-latest",
+        "scaffold-ubuntu-latest",
+        "secret-scan"
+      ],
+      "checks": [
+        {
+          "context": "dependency-and-license-scan",
+          "app_id": 15368
+        },
+        {
+          "context": "scaffold-windows-latest",
+          "app_id": 15368
+        },
+        {
+          "context": "scaffold-ubuntu-latest",
+          "app_id": 15368
+        },
+        {
+          "context": "secret-scan",
+          "app_id": 15368
+        }
+      ]
+    }
+  },
+  "failingPullRequest": {
+    "number": 16,
+    "head": "a8e73f495bd07c8cf69efbbb70725e60ffe67b00",
+    "mergeable": true,
+    "mergeableState": "blocked",
+    "checks": [
+      {
+        "name": "dependency-and-license-scan",
+        "conclusion": "failure",
+        "url": "https://github.com/DonvanGrobler/paperclip-companion/actions/runs/37935668208/job/113836956319"
+      },
+      {
+        "name": "scaffold-windows-latest",
+        "conclusion": "failure",
+        "url": "https://github.com/DonvanGrobler/paperclip-companion/actions/runs/37935668187/job/113836956200"
+      },
+      {
+        "name": "secret-scan",
+        "conclusion": "success",
+        "url": "https://github.com/DonvanGrobler/paperclip-companion/actions/runs/37935668208/job/113836956021"
+      },
+      {
+        "name": "scaffold-ubuntu-latest",
+        "conclusion": "failure",
+        "url": "https://github.com/DonvanGrobler/paperclip-companion/actions/runs/37935668187/job/113836955716"
+      }
+    ]
+  },
+  "limitations": "Detailed /branches/main/protection endpoint returns 403 for connector. Branch endpoint exposes required contexts and enforcement_level=everyone. No merge or bypass was attempted."
+}
