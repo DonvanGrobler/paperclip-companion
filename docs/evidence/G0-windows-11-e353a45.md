@@ -22,6 +22,6 @@ Reported by Donvan Grobler on 9 October 2026. This is maintainer-performed Windo
 
 The maintainer explicitly confirmed all manual Windows tests passed. The automated failure remains separate and must be fixed and verified, despite successful interactive rendering and earlier CI passes. Exact audit counts and raw logs are not reconstructed.
 
-Follow-up: [issue #7](https://github.com/DonvanGrobler/paperclip-companion/issues/7) adds bounded native-window visibility synchronization while retaining the final visibility assertion. No manual repetition is required for this unchanged application commit. If application code or Electron dependencies change, assess affected checks before accepting a new baseline. The corrected E2E still needs a Windows 11 rerun; Windows CI is additional evidence, not a replacement for that result.
+Follow-up: [issue #7](https://github.com/DonvanGrobler/paperclip-companion/issues/7) adds bounded native-window visibility synchronization while retaining the final visibility assertion. No manual repetition is required for this unchanged application commit. If application code or Electron dependencies change, assess affected checks before accepting a new baseline. Subsequent result: the maintainer confirmed **3 passed** on Windows 11 at `8935e46`; see the [rerun report](G0-windows-11-8935e46.md). The original automated failure above is retained as historical evidence.
 
 G0 remains open pending automated verification, P0-04/P0-05, applicable reviews and final candidate evidence. No private desktop images are committed.

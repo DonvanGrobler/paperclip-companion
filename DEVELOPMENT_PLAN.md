@@ -472,7 +472,7 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 **P0-05 work:** Synthetic screenshots and deterministic provider event fixtures implemented in [issue #11](https://github.com/DonvanGrobler/paperclip-companion/issues/11); [evidence](docs/evidence/P0-05.md). No production provider/capture feature is implemented.
 
-**Next smallest engineering step:** Resolve G0 review/enforcement and final candidate evidence before P1 promotion. Issue #7 visibility synchronization passed three Windows CI launches; corrected Windows 11 automated rerun remains pending. P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
+**Next smallest engineering step:** Resolve G0 review/enforcement and final candidate evidence before P1 promotion. Issue #7 visibility synchronization passed three Windows CI launches; the maintainer confirmed all three Windows 11 automated runs passed at `8935e46` ([report](docs/evidence/G0-windows-11-8935e46.md)). P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
 
 ### Weekly/review-session project update template
 

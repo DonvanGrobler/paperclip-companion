@@ -14,7 +14,7 @@ Windows CI runs three independent launches using `npm run test:e2e -- --repeat-e
 - Changed tree `npm run check`: exit 0, same 31 tests and coverage, format/lint/types/builds passed.
 - Local native Electron E2E: not run; this environment has no X server or Windows desktop.
 - Windows CI: exact-head run linked from the focused PR; only a completed green run establishes automated evidence.
-- Windows 11 E2E rerun: pending the maintainer's result on the corrected commit.
+- Windows 11 E2E rerun: maintainer reported **3 passed** at `8935e46`; [evidence](G0-windows-11-8935e46.md).
 - Application source and dependency lockfile unchanged. No new capture, network, IPC, permissions, assets or license decisions.
 
 Manual tests do not need repeating for this test-only fix. G0 stays open until its remaining engineering, review and final candidate requirements are met. Next smallest issue: P0-04 quality gates.

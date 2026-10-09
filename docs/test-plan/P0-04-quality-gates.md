@@ -25,6 +25,6 @@ Review and enable Dependabot alerts/security updates and GitHub secret scanning/
 
 ## Limits and final candidate
 
-These jobs use contents-read permissions and run on PRs, including the stacked development branches. Native Windows CI uses the hosted runner, not the maintainer's Windows 11 desktop. The human Windows report remains attached to e353a45, while the corrected E2E needs its own Windows 11 result.
+These jobs use contents-read permissions and run on PRs, including the stacked development branches. Native Windows CI uses the hosted runner, not the maintainer's Windows 11 desktop. The human Windows report remains attached to e353a45, and the corrected E2E passed all three maintainer-run Windows 11 repetitions at `8935e46` ([report](../evidence/G0-windows-11-8935e46.md)).
 
 The inventory is declared package metadata, not final asset/runtime clearance. Original-code license adoption and Electron/Chromium notices remain review items. P0-05 will add fixture validation; P2 will add actual provider contracts. No empty contract job is claimed passed. Full G0 closure requires final-candidate checks, reviews, branch enforcement evidence and the remaining fixture work.
