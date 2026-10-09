@@ -464,11 +464,11 @@ Decisions **must not be filled in by an agent as though the maintainer explicitl
 
 **Current work:** P0-01 research and license inventory is In review in [issue #1](https://github.com/DonvanGrobler/paperclip-companion/issues/1). See the [inventory](docs/research/P0-01-reuse-inventory.md) and [provisional ADR](docs/adr/0001-desktop-runtime.md). No risk-specific maintainer approval or gate completion is claimed.
 
-**P0-02 work:** Minimal Electron scaffold, pinned dependencies, isolation tests and Windows matrix implemented for [issue #3](https://github.com/DonvanGrobler/paperclip-companion/issues/3). See [evidence](docs/evidence/P0-02.md) and [provisional toolchain ADR](docs/adr/0006-scaffold-toolchain.md). Windows 11 interactive validation remains pending.
+**P0-02 work:** Minimal Electron scaffold, pinned dependencies, isolation tests and Windows matrix implemented for [issue #3](https://github.com/DonvanGrobler/paperclip-companion/issues/3). See [evidence](docs/evidence/P0-02.md) and [provisional toolchain ADR](docs/adr/0006-scaffold-toolchain.md). Windows 11 human validation passed at `e353a45` on Windows 11 Pro build 26200 x64; [report](docs/evidence/G0-windows-11-e353a45.md). The same report records an automated Electron visibility failure, tracked in issue #7.
 
 **P0-03 work:** Foundation documentation and Windows G0 handoff are In review in [issue #5](https://github.com/DonvanGrobler/paperclip-companion/issues/5). Use the [Windows walkthrough](docs/test-plan/G0-windows-walkthrough.md) and [G0 checklist](docs/test-plan/G0-status.md). The project-license proposal remains unadopted pending review.
 
-**Next smallest engineering step:** Complete P0-04 quality gates, then P0-05 synthetic fixtures. P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and human Windows evidence. No upstream source or artwork is approved for copying.
+**Next smallest engineering step:** Fix and verify the automated native-window visibility race (issue #7), then complete P0-04 quality gates, then P0-05 synthetic fixtures. P0-02 supplied only the checks needed for the scaffold. G0 remains open pending engineering, review and final candidate evidence; initial human Windows checks are verified. No upstream source or artwork is approved for copying.
 
 ### Weekly/review-session project update template
 
