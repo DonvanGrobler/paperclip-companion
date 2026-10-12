@@ -36,6 +36,9 @@ public:
             L"Paperclip synthetic fixture", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
             100, 100, 320, 240, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
         require(handle_ != nullptr);
+    }
+    // Called after construction so the destructor also runs if presentation fails.
+    void present() const {
         stage = "paint-fixture";
         UpdateWindow(handle_);
         winrt::check_hresult(DwmFlush());
@@ -99,6 +102,7 @@ int wmain(int argc, wchar_t** argv) {
         Apartment apartment;
         {
             SyntheticWindow first;
+            first.present();
             Binding original(first);
             stage = "original-live";
             require(!original.closed());
@@ -106,6 +110,7 @@ int wmain(int argc, wchar_t** argv) {
             awaitClosed(original);
 
             SyntheticWindow replacement;
+            replacement.present();
             Binding fresh(replacement);
             stage = "replacement-isolation";
             require(original.closed());

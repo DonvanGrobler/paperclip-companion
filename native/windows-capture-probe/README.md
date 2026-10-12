@@ -10,12 +10,12 @@ native\windows-capture-probe\build-and-test.cmd
 ```
 
 The script locates Visual Studio with its installed `vswhere`, selects the MSVC
-14.51 toolset family and exact SDK, compiles with warnings as errors, prints the
+14.51.36231 toolset and exact SDK, compiles with warnings as errors, prints the
 selected toolset and imported DLL names, runs three synthetic lifetime tests,
 and verifies unsupported/missing CLI arguments return exit code 2. Build/runtime
 failure is fatal. Binaries/objects stay under ignored `dist/native-probe`; no CI
-artifact is uploaded. The exact patch-level compiler is recorded, not yet locked
-for a reproducible release. No SDK/compiler is downloaded by the script.
+artifact is uploaded. The compiler patch and SDK are checked exactly; the hosted image itself
+is still mutable, so this is not a release-reproducibility claim. No SDK/compiler is downloaded by the script.
 
 Each self-test creates window A, binds its WGC item, destroys A and waits at most
 three seconds for its Closed notification while pumping messages. It then creates
@@ -27,7 +27,7 @@ themselves are subject to the enclosing CI job timeout.
 No HWND, filename or arbitrary target can be supplied. There is no source
 enumeration, session/frame pool, pixel conversion, image output, provider call,
 network, hook, elevation or persistent target state. Stdout/stderr contain fixed
-test messages only. Compiler paths/version and DLL names are build metadata.
+test/stage labels and numeric HRESULT codes, never exception text. Compiler paths/version and DLL names are build metadata.
 
 This is native automated evidence only. It does **not** prove HWND reuse safety,
 atomic external-window binding, permission behavior, pixel isolation, picker

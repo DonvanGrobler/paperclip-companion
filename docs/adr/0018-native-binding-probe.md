@@ -25,20 +25,18 @@ The test rejects silent failure: unsupported item creation, missing close events
 invalid size and build problems fail the required job. A three-second event wait
 is bounded; the job timeout bounds blocking native calls. Object destruction
 revokes subscriptions before item release. Shared callback state prevents a
-late callback from referring to destroyed stack memory. No sensitive native
-metadata or exception text is printed. RAII also releases WinRT initialization
+late callback from referring to destroyed stack memory. Only fixed stage labels and numeric HRESULT codes identify failures; no sensitive
+native metadata or exception text is printed. RAII also releases WinRT initialization
 on errors. No production fallback is introduced if the experiment fails.
 
 ## Toolchain and licensing review
 
-Use installed MSVC 14.51-family x64 tools, SDK **10.0.26100.0**, dynamic CRT (`/MD`),
-SDK C++/WinRT projections, `windowsapp.lib` and `user32.lib`. The SDK version is
-fixed; the compiler family is selected and its exact installed patch is logged.
+Use installed MSVC 14.51.36231 x64 tools, SDK **10.0.26100.0**, dynamic CRT (`/MD`),
+SDK C++/WinRT projections, `windowsapp.lib`, `user32.lib` and `dwmapi.lib`. Both SDK and compiler patch versions are checked exactly and logged.
 The hosted image itself is mutable, so this is not a release-reproducibility claim.
 SDK/toolset absence fails rather than downloading an unreviewed replacement.
 The official [runner inventory](https://github.com/actions/runner-images/blob/main/images/windows/Windows2025-VS2026-Readme.md)
-was inspected before choosing the SDK; compiler patch compatibility still needs
-the native CI result. No npm dependency, copied SDK header/library, or new GitHub
+was inspected before choosing the SDK; the compiler patch was confirmed by the native CI build. No npm dependency, copied SDK header/library, or new GitHub
 Action is added. Built binaries remain transient and are not published.
 
 The independently authored source follows the repository's current source-license

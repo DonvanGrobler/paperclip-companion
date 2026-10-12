@@ -6,6 +6,7 @@ if not defined probe_vs exit /b 1
 call "%probe_vs%\Common7\Tools\VsDevCmd.bat" -no_logo -arch=x64 -host_arch=x64 -vcvars_ver=14.51.36231 -winsdk=10.0.26100.0
 if errorlevel 1 exit /b 1
 if not "%WindowsSDKVersion%"=="10.0.26100.0\" exit /b 1
+if not "%VCToolsVersion%"=="14.51.36231" exit /b 1
 echo Native SDK: %WindowsSDKVersion%
 echo Native compiler tools: %VCToolsVersion%
 set "probe_out=%~dp0..\..\dist\native-probe"
