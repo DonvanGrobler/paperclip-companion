@@ -1,38 +1,36 @@
-# Windows capture-item feasibility probe
+# Windows synthetic capture feasibility probe
 
-Issue #48, P3-02b. **Test executable only**, not a production capture helper.
+Issues #48 and #50, P3-02b/P3-03a. **Test executable only**, not a production capture helper.
 
-From a Windows developer checkout with Visual Studio C++ tools and Windows SDK
-10.0.26100.0 installed, run from the repository root:
+Run from a Windows developer checkout:
 
 ```bat
 native\windows-capture-probe\build-and-test.cmd
 ```
 
-The script locates Visual Studio with its installed `vswhere`, selects the MSVC
-14.51.36231 toolset and exact SDK, compiles with warnings as errors, prints the
-selected toolset and imported DLL names, runs three synthetic lifetime tests,
-and verifies unsupported/missing CLI arguments return exit code 2. Build/runtime
-failure is fatal. Binaries/objects stay under ignored `dist/native-probe`; no CI
-artifact is uploaded. The compiler patch and SDK are checked exactly; the hosted image itself
-is still mutable, so this is not a release-reproducibility claim. No SDK/compiler is downloaded by the script.
+The script requires installed MSVC 14.51.36231 and Windows SDK 10.0.26100.0,
+checks both exact versions, compiles with warnings as errors, prints DLL imports,
+runs three self-test processes and verifies missing/unknown arguments exit 2.
+No tools are downloaded. Output stays in ignored `dist/native-probe`; no binary
+or image artifact is uploaded. The hosted image remains mutable.
 
-Each self-test creates window A, binds its WGC item, destroys A and waits at most
-three seconds for its Closed notification while pumping messages. It then creates
-window B in the same process, verifies A's item remains closed and B's is live,
-and destroys B. RAII revokes subscriptions and releases items/windows/apartment.
-The asynchronous callback owns its flag safely even during teardown. API calls
-themselves are subject to the enclosing CI job timeout.
+Only explicit `--self-test` is accepted. The test creates its own red/blue window,
+binds a WGC item, reads one BGRA frame through a WARP device and checks two color
+landmarks. Each request uses one frame-pool buffer and stops its session before
+CPU readback. Dimensions are capped at 1024 by 1024. Negative cases cover
+pre-start cancellation, post-start cancellation, forced deadline expiry,
+rejected-frame cleanup and a closed target. Fresh capture must still work.
+The original item-closure/replacement-isolation assertions also remain.
 
-No HWND, filename or arbitrary target can be supplied. There is no source
-enumeration, session/frame pool, pixel conversion, image output, provider call,
-network, hook, elevation or persistent target state. Stdout/stderr contain fixed
-test/stage labels and numeric HRESULT codes, never exception text. Compiler paths/version and DLL names are build metadata.
+Frame waits and nonblocking readback share a five-second polling budget. Native
+calls themselves remain subject to the CI job timeout. WGC may internally produce
+frames while active; only one is accepted per successful request. RAII closes
+sessions, returned frames and pools independently; counters assert successful
+close calls, not forensic erasure of GPU/driver memory. The OS border is preserved.
 
-This is native automated evidence only. It does **not** prove HWND reuse safety,
-atomic external-window binding, permission behavior, pixel isolation, picker
-identity/exclusion mapping, physical Windows 11 behavior or G3. In particular,
-the test cannot force Windows to recycle the same HWND and must not claim it did.
-Next: a separate owned-window one-frame/cleanup probe after this build and item
-lifetime path is verified. Review [ADR 0018](../../docs/adr/0018-native-binding-probe.md)
-before extending its boundary.
+No external HWND, source enumeration, filename, app IPC, network or provider is
+accepted. Images are never saved or printed. Diagnostics contain fixed stage
+labels and numeric HRESULTs only. This does not verify physical Windows 11,
+DPI/HDR, protected content, real driver hangs, external identity, consent or G3.
+See [ADR 0019](../../docs/adr/0019-synthetic-single-frame.md) and the historical
+[item-only ADR](../../docs/adr/0018-native-binding-probe.md).
