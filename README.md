@@ -74,6 +74,15 @@ Windows clipboard history. Shell settings are saved separately; chat is not rest
 See [streaming evidence](docs/evidence/P2-02.md) and [IPC design](docs/adr/0013-main-chat-stream.md).
 Routine streaming and lifecycle checks run automatically on Windows CI.
 
+### Screen-controls preview (P3-01a)
+
+Chat also has a **Screen context** disclosure and local controls preview. Try
+controls locally enables experimenting with Include/Never without granting real
+consent. Include pauses submission until you choose Send text only or Keep editing.
+Never overrides Include, and Use text only withdraws the preview and stops an
+active reply. Choices reset on close/reload and no screen is ever attached.
+See [P3-01a evidence](docs/evidence/P3-01a.md). Real consent and capture are not implemented.
+
 ### Screen-intent experiment (P3-04)
 
 For the separate, non-runtime screen-intent experiment, run `npm run evaluate:intent`.

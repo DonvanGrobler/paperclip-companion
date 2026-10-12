@@ -38,6 +38,9 @@ it.each([
   { ...request, scenario: '__proto__' },
   { ...request, scenario: 'vision-success' },
   { ...request, screenshot: {} },
+  { ...request, includeScreen: true },
+  { ...request, consentGranted: true },
+  { ...request, screen: { reviewed: true, include: true } },
   { ...request, endpoint: 'https://example.com' },
 ])(
   'rejects malformed or overprivileged start %# without provider work',
