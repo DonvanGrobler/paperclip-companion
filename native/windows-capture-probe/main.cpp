@@ -1,4 +1,4 @@
-// Original synthetic-window feasibility probe. No frame acquisition or app integration.
+// Original synthetic-window feasibility probe. No external targets or app integration.
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -27,12 +27,44 @@ static void require(bool condition) {
     if (!condition) throw std::runtime_error("probe assertion");
 }
 
+class FixtureClass final {
+    static LRESULT CALLBACK procedure(HWND window, UINT message, WPARAM w, LPARAM l) {
+        if (message != WM_PAINT) return DefWindowProcW(window, message, w, l);
+        PAINTSTRUCT paint{};
+        const auto dc = BeginPaint(window, &paint);
+        RECT area{};
+        GetClientRect(window, &area);
+        RECT left = area;
+        left.right = area.right / 2;
+        RECT right = area;
+        right.left = left.right;
+        const auto brush = static_cast<HBRUSH>(GetStockObject(DC_BRUSH));
+        SetDCBrushColor(dc, RGB(255, 0, 0));
+        FillRect(dc, &left, brush);
+        SetDCBrushColor(dc, RGB(0, 0, 255));
+        FillRect(dc, &right, brush);
+        EndPaint(window, &paint);
+        return 0;
+    }
+public:
+    FixtureClass() {
+        WNDCLASSW definition{};
+        definition.lpfnWndProc = procedure;
+        definition.hInstance = GetModuleHandleW(nullptr);
+        definition.lpszClassName = L"PaperclipSyntheticFixture";
+        require(RegisterClassW(&definition) != 0);
+    }
+    ~FixtureClass() { UnregisterClassW(L"PaperclipSyntheticFixture", GetModuleHandleW(nullptr)); }
+    FixtureClass(const FixtureClass&) = delete;
+    FixtureClass& operator=(const FixtureClass&) = delete;
+};
+
 class SyntheticWindow final {
     HWND handle_{};
 public:
     SyntheticWindow() {
         stage = "create-fixture";
-        handle_ = CreateWindowExW(WS_EX_APPWINDOW, L"STATIC",
+        handle_ = CreateWindowExW(WS_EX_APPWINDOW, L"PaperclipSyntheticFixture",
             L"Paperclip synthetic fixture", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
             100, 100, 320, 240, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
         require(handle_ != nullptr);
@@ -77,8 +109,11 @@ public:
     Binding(const Binding&) = delete;
     Binding& operator=(const Binding&) = delete;
     bool closed() const noexcept { return closed_->load(); }
+    const GraphicsCaptureItem& item() const noexcept { return item_; }
     // Member destruction revokes the callback before releasing the item/flag.
 };
+
+#include "single-frame.h"
 
 static void awaitClosed(const Binding& binding) {
     stage = "await-closed";
@@ -100,14 +135,19 @@ int wmain(int argc, wchar_t** argv) {
     try {
         stage = "initialize-apartment";
         Apartment apartment;
+        FixtureClass fixtureClass;
         {
             SyntheticWindow first;
             first.present();
             Binding original(first);
             stage = "original-live";
             require(!original.closed());
+            testSingleFrame(original);
             first.close();
             awaitClosed(original);
+            FrameMetrics denied;
+            require(!captureOne(original, FrameMode::success, denied));
+            require(denied.starts == 0 && denied.accepted == 0);
 
             SyntheticWindow replacement;
             replacement.present();
