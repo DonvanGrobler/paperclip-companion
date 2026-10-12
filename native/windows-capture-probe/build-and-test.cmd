@@ -11,7 +11,7 @@ echo Native compiler tools: %VCToolsVersion%
 set "probe_out=%~dp0..\..\dist\native-probe"
 if not exist "%probe_out%" mkdir "%probe_out%"
 pushd "%probe_out%"
-cl /nologo /std:c++20 /EHsc /W4 /WX /MD /utf-8 /external:anglebrackets /external:W0 "%~dp0main.cpp" /Fe:capture-probe.exe /Fo:probe.obj /link windowsapp.lib user32.lib /DYNAMICBASE /NXCOMPAT
+cl /nologo /std:c++20 /EHsc /W4 /WX /MD /utf-8 /external:anglebrackets /external:W0 "%~dp0main.cpp" /Fe:capture-probe.exe /Fo:probe.obj /link windowsapp.lib user32.lib dwmapi.lib /DYNAMICBASE /NXCOMPAT
 if errorlevel 1 exit /b 1
 dumpbin /dependents capture-probe.exe
 if errorlevel 1 exit /b 1

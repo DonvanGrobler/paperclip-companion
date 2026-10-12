@@ -2,6 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#include <dwmapi.h>
 #include <windows.graphics.capture.interop.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Graphics.Capture.h>
@@ -31,10 +32,13 @@ class SyntheticWindow final {
 public:
     SyntheticWindow() {
         stage = "create-fixture";
-        handle_ = CreateWindowExW(WS_EX_TOOLWINDOW, L"STATIC",
+        handle_ = CreateWindowExW(WS_EX_APPWINDOW, L"STATIC",
             L"Paperclip synthetic fixture", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
             100, 100, 320, 240, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
         require(handle_ != nullptr);
+        stage = "paint-fixture";
+        UpdateWindow(handle_);
+        winrt::check_hresult(DwmFlush());
     }
     SyntheticWindow(const SyntheticWindow&) = delete;
     SyntheticWindow& operator=(const SyntheticWindow&) = delete;
