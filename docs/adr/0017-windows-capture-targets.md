@@ -154,6 +154,16 @@ and no OS calls; then a bounded Windows helper feasibility spike proving stable
 item identity, selection/exclusion mapping, cancellation and memory-only output.
 Resolve unknowns before implementing production P3-03 or promoting any gate.
 
+## Implementation note — P3-02a
+
+PR #45 merged the proposal and the maintainer requested continuation on 12 October 2026. Issue #46 implements only the pure lifecycle described above; see
+[P3-02a evidence](../evidence/P3-02a.md). A main-owned instance uses opaque IDs,
+invocation generations and local frozen ticket identity. Each invocation allows
+one bind/submission, and a completion consumes its ticket even on denial. All
+invalidating events discard pending work; companion focus alone preserves it.
+Retries require a new invocation. This is not native identity proof, production
+integration, or final acceptance of the native technology/permissions decision.
+
 ## References
 
 [E1]: https://www.electronjs.org/docs/latest/api/desktop-capturer
