@@ -26,6 +26,10 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm audit --audit-level=high
+      - name: Native synthetic capture-item probe
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: native\windows-capture-probe\build-and-test.cmd
       - name: Electron shell smoke
         if: runner.os == 'Windows'
         run: npm run test:e2e -- --repeat-each=3
