@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 using winrt::Windows::Graphics::Capture::GraphicsCaptureItem;
+static const char* stage = "argument-check";
 
 class Apartment final {
 public:
@@ -29,6 +30,7 @@ class SyntheticWindow final {
     HWND handle_{};
 public:
     SyntheticWindow() {
+        stage = "create-fixture";
         handle_ = CreateWindowExW(WS_EX_TOOLWINDOW, L"STATIC",
             L"Paperclip synthetic fixture", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
             100, 100, 320, 240, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
@@ -51,13 +53,17 @@ class Binding final {
 public:
     // Only accepts a fixture created by this process, never an arbitrary HWND.
     explicit Binding(const SyntheticWindow& window) {
+        stage = "activation-factory";
         const auto factory = winrt::get_activation_factory<GraphicsCaptureItem,
             IGraphicsCaptureItemInterop>();
+        stage = "create-item";
         winrt::check_hresult(factory->CreateForWindow(window.handle(),
             winrt::guid_of<GraphicsCaptureItem>(), winrt::put_abi(item_)));
         const auto flag = closed_;
+        stage = "subscribe-closed";
         subscription_ = item_.Closed(winrt::auto_revoke,
             [flag](const auto&, const auto&) noexcept { flag->store(true); });
+        stage = "item-size";
         const auto size = item_.Size();
         require(size.Width > 0 && size.Height > 0);
     }
@@ -68,6 +74,7 @@ public:
 };
 
 static void awaitClosed(const Binding& binding) {
+    stage = "await-closed";
     const auto deadline = GetTickCount64() + 3000;
     while (!binding.closed() && GetTickCount64() < deadline) {
         MSG message{};
@@ -84,16 +91,19 @@ int wmain(int argc, wchar_t** argv) {
     // Reject all external targets/options before initializing WinRT or creating windows.
     if (argc != 2 || std::wcscmp(argv[1], L"--self-test") != 0) return 2;
     try {
+        stage = "initialize-apartment";
         Apartment apartment;
         {
             SyntheticWindow first;
             Binding original(first);
+            stage = "original-live";
             require(!original.closed());
             first.close();
             awaitClosed(original);
 
             SyntheticWindow replacement;
             Binding fresh(replacement);
+            stage = "replacement-isolation";
             require(original.closed());
             require(!fresh.closed());
             replacement.close();
@@ -102,9 +112,13 @@ int wmain(int argc, wchar_t** argv) {
         }
         std::puts("PASS native item creation, close notification, replacement isolation, teardown");
         return 0;
+    } catch (const winrt::hresult_error& error) {
+        std::fprintf(stderr, "FAIL native capture-item probe: %s HRESULT=%08X\n",
+            stage, static_cast<unsigned int>(error.code().value));
+        return 1;
     } catch (...) {
         // Deliberately omit exception text, titles, handles and other native metadata.
-        std::fputs("FAIL native capture-item probe\n", stderr);
+        std::fprintf(stderr, "FAIL native capture-item probe: %s\n", stage);
         return 1;
     }
 }

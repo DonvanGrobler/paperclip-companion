@@ -3,7 +3,7 @@ setlocal
 set "probe_vs="
 for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "probe_vs=%%i"
 if not defined probe_vs exit /b 1
-call "%probe_vs%\Common7\Tools\VsDevCmd.bat" -no_logo -arch=x64 -host_arch=x64 -vcvars_ver=14.51 -winsdk=10.0.26100.0
+call "%probe_vs%\Common7\Tools\VsDevCmd.bat" -no_logo -arch=x64 -host_arch=x64 -vcvars_ver=14.51.36231 -winsdk=10.0.26100.0
 if errorlevel 1 exit /b 1
 if not "%WindowsSDKVersion%"=="10.0.26100.0\" exit /b 1
 echo Native SDK: %WindowsSDKVersion%
