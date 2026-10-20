@@ -8,6 +8,22 @@ Use the pinned Node/npm versions and run `npm ci`, `npm run check`, `npm audit -
 
 Secret scanning uses the official Gitleaks CLI 8.30.1. The Linux x64 download URL and checksum are in `.github/workflows/quality.yml`. On a machine with that verified CLI and full clone, run `gitleaks git . --log-opts="--all" --no-banner --redact=100`. The workflow first checks detection on a synthetic key marker. No real credentials are needed and no scan findings artifacts are uploaded.
 
+### Dependency-update maintenance
+
+Dependabot proposes version changes; it does not complete the inventory review.
+An update that fails with `INVENTORY_DRIFT` needs an explicit review of changed
+package versions, integrity, license texts and dev/optional flags, followed by a
+matching inventory edit in that same PR. This check remains blocking. See the
+[20 October repair](../evidence/dependency-maintenance-2026-10-20.md) for an example.
+
+Vitest and its coverage provider have exact version peers and are grouped in
+`.github/dependabot.yml` as `vitest` / `@vitest/*`. Upgrade them together, regenerate
+the lockfile, and require a clean `npm ci`; do not use force or legacy-peer-deps.
+When several proposals touch the same graph/inventory, prefer one reviewed
+maintenance PR and close superseded proposals with a replacement link after it
+passes. Run the full checks, Windows native/Electron suite, audit and review on
+the final combined commit before continuing dependent feature work.
+
 ## Required check configuration
 
 The following names should be required by the main branch ruleset once the workflows have run:

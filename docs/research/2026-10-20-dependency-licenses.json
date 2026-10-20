@@ -1,0 +1,202 @@
+[
+  {
+    "path": "node_modules/@types/node",
+    "version": "24.19.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/eslint-plugin",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "2eb5c7a0bba9deb77a98c81bf6b9d3fb1c67118eebf968b6b1a787b3f8928ee0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/eslint-plugin/node_modules/ignore",
+    "version": "7.0.13",
+    "licenses": [
+      {
+        "file": "LICENSE-MIT",
+        "sha256": "9c94db23dc4b1e9aaee5d195668b916afc71efed54af226b66cf0ccc4389c1c0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/parser",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "2eb5c7a0bba9deb77a98c81bf6b9d3fb1c67118eebf968b6b1a787b3f8928ee0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/project-service",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "053a75a14b7508a897466b65e12797201a06b0e9b5066d1223da72cac99601b5"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/scope-manager",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "2eb5c7a0bba9deb77a98c81bf6b9d3fb1c67118eebf968b6b1a787b3f8928ee0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/tsconfig-utils",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "053a75a14b7508a897466b65e12797201a06b0e9b5066d1223da72cac99601b5"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/type-utils",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "f3c51ace7f159b21566d72535e84ff354505ae7ffdca835dac81fcdafbf9e879"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/types",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "2eb5c7a0bba9deb77a98c81bf6b9d3fb1c67118eebf968b6b1a787b3f8928ee0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/typescript-estree",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "2eb5c7a0bba9deb77a98c81bf6b9d3fb1c67118eebf968b6b1a787b3f8928ee0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/utils",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "2eb5c7a0bba9deb77a98c81bf6b9d3fb1c67118eebf968b6b1a787b3f8928ee0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@typescript-eslint/visitor-keys",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "2eb5c7a0bba9deb77a98c81bf6b9d3fb1c67118eebf968b6b1a787b3f8928ee0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@vitest/coverage-v8",
+    "version": "5.0.4",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "04575fc5bfae19a9b63100f8691f901a2e15a399011ac02db435a9ef27295551"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@vitest/mocker",
+    "version": "5.0.4",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "04575fc5bfae19a9b63100f8691f901a2e15a399011ac02db435a9ef27295551"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/@vitest/spy",
+    "version": "5.0.4",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "04575fc5bfae19a9b63100f8691f901a2e15a399011ac02db435a9ef27295551"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/obug",
+    "version": "3.0.0",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "ee48679d379ca6b4493d5e231094d85f818dd9be40b1a4f234fb7ff657ee35d9"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/prettier",
+    "version": "3.9.10",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "b0f2417199889f1c0d28ec4e0244eacf1a15de5819d61f641dd7d8f45153ac9c"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/tinybench",
+    "version": "6.2.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "cebc084d54e6dd99e53292ddb4bc1cdb63d9bfcd9ce438fe3aa6eb106d79e2ea"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/typescript-eslint",
+    "version": "8.71.2",
+    "licenses": [
+      {
+        "file": "LICENSE",
+        "sha256": "2eb5c7a0bba9deb77a98c81bf6b9d3fb1c67118eebf968b6b1a787b3f8928ee0"
+      }
+    ]
+  },
+  {
+    "path": "node_modules/vitest",
+    "version": "5.0.4",
+    "licenses": [
+      {
+        "file": "LICENSE.md",
+        "sha256": "78fbac9e571c2ee260deb2a1941a8a18f0a85e3f39c23d08e2dcee6da4841998"
+      }
+    ]
+  }
+]
