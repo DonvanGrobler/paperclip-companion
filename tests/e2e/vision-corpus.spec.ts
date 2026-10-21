@@ -7,8 +7,8 @@ import {
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import legacy from '../fixtures/screens.json';
-import corpus from '../fixtures/vision-cases.json';
+import legacy from '../fixtures/screens.json' with { type: 'json' };
+import corpus from '../fixtures/vision-cases.json' with { type: 'json' };
 
 test('Electron decodes all pinned synthetic visual fixtures', async () => {
   const profile = await mkdtemp(path.join(os.tmpdir(), 'paperclip-vision-'));

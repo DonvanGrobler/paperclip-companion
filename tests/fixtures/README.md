@@ -76,6 +76,11 @@ Electron E2E independently decodes all twenty-two images. Tests print only IDs
 and booleans/metadata, never pixel buffers. Temporary public fixture decoding
 does not enable real capture or persistent screenshot storage.
 
+After changing Electron fixture tests, also run `npx playwright test --list`
+locally, even without a graphical session. It checks Playwright/Node test-module
+collection, including explicit JSON import attributes, before Windows CI executes
+the tests. Collection success alone is not an Electron execution result.
+
 The [P4 grading protocol](../../docs/test-plan/P3-06-vision-quality.md) covers all
 five response-quality dimensions, excludes answer annotations from model input
 and requires repeated real-model evaluation. The baseline is **not run**. These
