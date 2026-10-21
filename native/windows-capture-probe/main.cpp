@@ -72,6 +72,11 @@ public:
     // Called after construction so the destructor also runs if presentation fails.
     void present() const {
         stage = "paint-fixture";
+        // A hidden-console child can inherit STARTF_USESHOWWINDOW/SW_HIDE.
+        // Explicitly present only our fixture without activating another app.
+        require(SetWindowPos(handle_, nullptr, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW) != FALSE);
+        require(IsWindowVisible(handle_) != FALSE);
         UpdateWindow(handle_);
         winrt::check_hresult(DwmFlush());
     }

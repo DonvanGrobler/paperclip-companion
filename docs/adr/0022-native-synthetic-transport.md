@@ -25,6 +25,9 @@ No surface padding is included. An RAII Unmap guard protects all exits, includin
 allocation/assertion exceptions. A noncopyable owned pixel buffer overwrites
 its contents on destruction. Session/frame/pool close counters must balance;
 close the fixture and observe its item closure before emitting any response.
+The fixture is explicitly shown with SetWindowPos/SWP_SHOWWINDOW without
+activation; a hidden-console parent launch may supply an initial hidden show
+state. IsWindowVisible must pass before binding, followed by paint/DwmFlush.
 
 Write one little-endian header length, validated JSON response header and tightly
 packed pixels on stdout's owned pipe. There is no PASS text in binary mode.
@@ -59,6 +62,7 @@ Microsoft documentation reviewed 21 October 2026; no sample source copied:
 - [Mapped subresource](https://learn.microsoft.com/en-us/windows/win32/api/d3d11/ns-d3d11-d3d11_mapped_subresource): RowPitch advances physical rows; copying the entire surface can include padding.
 - [_setmode](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/setmode?view=msvc-170): binary mode suppresses text translation; configure it before I/O.
 - [JsonObject](https://learn.microsoft.com/en-us/uwp/api/windows.data.json.jsonobject?view=winrt-26100): SDK JSON object and duplicate-name semantics.
+- [ShowWindow](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow) and [SetWindowPos](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowpos): inherited startup show state and explicit fixture visibility without activation.
 - [GetFileType](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfiletype): PIPE distinguishes pipe/socket handles from consoles/disks. The type alone does not establish private-peer ownership.
 
 ## Security, licensing and limitations
@@ -71,7 +75,8 @@ redistribution/build obligations remain open; this is not binary release clearan
 
 A private stdout protocol carries pixels intentionally; diagnostic logs and
 artifacts do not. Clearing owned native/parent buffers does not erase CRT, OS
-pipe, allocator, driver or GPU copies. Blocking native calls and pipe writes are
+pipe, allocator, driver or GPU copies. Forced termination cannot run C++
+destructors; OS memory reclamation is not claimed as erasure. Blocking native calls and pipe writes are
 subject to parent deadline/kill and the CI timeout. The stalled-stdin test proves
 request-reader termination, not driver-hang recovery. Cancellation after output
 does not test every GPU/frame-arrival race. Parent death/process-tree containment,
