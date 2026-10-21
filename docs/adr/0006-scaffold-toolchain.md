@@ -37,3 +37,15 @@ The scaffold includes the local checks and a small CI workflow needed to verify 
 - [Playwright Electron API](https://playwright.dev/docs/api/class-electron)
 
 Installed package manifests and the lockfile provide exact dependency evidence. No upstream companion-project code or art was copied.
+
+## Maintenance — 20 October 2026
+
+Issue #62 coordinates existing Dependabot patch/minor proposals and retains the
+original runtime/compiler decisions. Vitest/coverage advance together to 5.0.4;
+typescript-eslint to 8.71.2, Node declarations to 24.19.2 and Prettier to 3.9.10.
+setup-node advances to the verified v7.1.0 commit. Exact lock/inventory pins and
+required checks remain enforced. The reviewed transitive obug major update is
+development-only, not a runtime or source-license policy change. See the
+[maintenance review](../evidence/dependency-maintenance-2026-10-20.md) for package,
+license, provenance and validation evidence. This grants no installer/native
+redistribution clearance or new capture/provider permission.
