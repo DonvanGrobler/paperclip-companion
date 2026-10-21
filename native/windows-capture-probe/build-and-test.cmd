@@ -19,7 +19,11 @@ if errorlevel 1 exit /b 1
 for /l %%i in (1,1,3) do (
   capture-probe.exe --self-test
   if errorlevel 1 exit /b 1
+  capture-probe.exe --selection-self-test
+  if errorlevel 1 exit /b 1
 )
+capture-probe.exe --selection-self-test --extra
+if not "%errorlevel%"=="2" exit /b 1
 capture-probe.exe --external-target
 if not "%errorlevel%"=="2" exit /b 1
 capture-probe.exe

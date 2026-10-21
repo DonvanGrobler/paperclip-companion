@@ -1,6 +1,6 @@
 # Windows synthetic capture feasibility probe
 
-Issues #48, #50 and #69, P3-02b/P3-03a/d. **Test executable only**, not a production capture helper.
+Issues #48, #50, #69 and #71, P3-02b/c and P3-03a/d. **Test executable only**, not a production capture helper.
 
 Run from a Windows developer checkout:
 
@@ -10,7 +10,7 @@ native\windows-capture-probe\build-and-test.cmd
 
 The script requires installed MSVC 14.51.36231 and Windows SDK 10.0.26100.0,
 checks both exact versions, compiles with warnings as errors, prints DLL imports,
-runs three self-test processes and verifies missing/unknown arguments exit 2.
+runs three original self-test and three selection self-test processes, and verifies missing/unknown/extra arguments exit 2.
 No tools are downloaded. Output stays in ignored `dist/native-probe`; no binary
 or image artifact is uploaded. The hosted image remains mutable.
 
@@ -56,3 +56,21 @@ unsupported CLI rejection, cancellation after output and a stalled stdin deadlin
 The latter tests a blocked request reader, not a hung graphics driver. Parent
 crash containment, external identity, DPI/HDR, policy and consent remain open.
 See [ADR 0022](../../docs/adr/0022-native-synthetic-transport.md).
+
+## Synthetic target selection
+
+The same build script runs `--selection-self-test` three times. It selects
+between two owned windows with the same title/process/thread and different
+red/blue or green/yellow landmarks. Each selection holds its own unique fixture
+lifetime and capture item, bounded title/ownership metadata and one-use request
+generation. Selection itself starts no capture. Blocked/empty/oversized/changed
+metadata, hidden/minimized/closed targets and stale/replayed requests yield zero
+starts. Closing the fixture revokes its identity before asynchronous item-close
+notification; a same-process replacement requires a fresh selection. A controlled
+title change after capture starts must discard any candidate and close resources.
+No pixels or metadata are output by this mode.
+
+This is controlled native mapping, without an end-user picker or external-window
+identity proof. It does not force HWND reuse or establish safe title/PID-based
+authorization. Production target UX, native observation races, real exclusions
+and consent remain unresolved. See [ADR 0023](../../docs/adr/0023-native-synthetic-selection.md).

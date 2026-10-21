@@ -24,7 +24,8 @@ struct FramePixels final {
     FramePixels& operator=(const FramePixels&) = delete;
 };
 
-enum class FrameMode { success, cancelBeforeStart, cancelAfterStart, expiredDeadline, rejectFrame };
+enum class FrameMode { success, cancelBeforeStart, cancelAfterStart, expiredDeadline, rejectFrame,
+    dispatchFixtureEvent };
 struct FrameMetrics {
     unsigned starts{}, accepted{}, pools{}, sessions{}, frames{};
     unsigned poolsClosed{}, sessionsClosed{}, framesClosed{}, cleanupErrors{};
@@ -66,7 +67,8 @@ static void pumpFrameWait() {
 }
 
 // Only called by the explicit synthetic self-test. Never a production capture API.
-static bool captureOne(const Binding& binding, FrameMode mode, FrameMetrics& metrics, FramePixels* output = nullptr) {
+static bool captureOne(const Binding& binding, FrameMode mode, FrameMetrics& metrics,
+    FramePixels* output = nullptr, const FixtureColors& expected = redBlue) {
     if (binding.closed() || mode == FrameMode::cancelBeforeStart) return false;
     stage = "capture-supported";
     require(GraphicsCaptureSession::IsSupported());
@@ -98,6 +100,7 @@ static bool captureOne(const Binding& binding, FrameMode mode, FrameMetrics& met
     resources.session.StartCapture();
     ++metrics.starts;
     if (mode == FrameMode::cancelAfterStart) return false;
+    if (mode == FrameMode::dispatchFixtureEvent) pumpFrameWait();
     const auto deadline = GetTickCount64() + (mode == FrameMode::expiredDeadline ? 0 : 5000);
     stage = "await-frame";
     while (GetTickCount64() < deadline && !binding.closed()) {
@@ -154,8 +157,15 @@ static bool captureOne(const Binding& binding, FrameMode mode, FrameMetrics& met
             static_cast<size_t>(content.Height / 2) * mapped.RowPitch;
         const auto left = row + static_cast<size_t>(content.Width / 4) * 4;
         const auto right = row + static_cast<size_t>((content.Width * 3) / 4) * 4;
-        colors = left[2] > 200 && left[1] < 40 && left[0] < 40 &&
-            right[0] > 200 && right[1] < 40 && right[2] < 40;
+        const auto matches = [](const unsigned char* pixel, COLORREF color) {
+            const auto channel = [](unsigned char actual, unsigned char wanted) {
+                const int difference = static_cast<int>(actual) - static_cast<int>(wanted);
+                return difference > -40 && difference < 40;
+            };
+            return channel(pixel[0], GetBValue(color)) && channel(pixel[1], GetGValue(color)) &&
+                channel(pixel[2], GetRValue(color));
+        };
+        colors = matches(left, expected.left) && matches(right, expected.right);
     }
     stage = "synthetic-landmarks";
     require(colors);
