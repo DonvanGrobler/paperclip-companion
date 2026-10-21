@@ -2,6 +2,8 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { afterEach, expect, it } from 'vitest';
 import { createHelperSession } from '../../src/main/capture-helper-session';
+import { createPngEncoder } from '../../src/main/capture-png';
+import { readSyntheticPng } from '../fixtures/png';
 
 if (process.platform !== 'win32')
   throw new Error('WINDOWS_NATIVE_TRANSPORT_REQUIRED');
@@ -86,7 +88,7 @@ afterEach(async () => {
   children.length = 0;
 });
 
-it('receives three sequential real fixture frames, validates landmarks and clears bytes', async () => {
+it('receives three sequential real fixture frames, converts PNGs and clears bytes', async () => {
   const session = createHelperSession(launch, {
     timeoutMs: 10000,
     killGraceMs: 3000,
@@ -129,6 +131,42 @@ it('receives three sequential real fixture frames, validates landmarks and clear
             result.bytes[right + 2]! < 40,
         ).toBe(true);
         expect(children.at(-1)!.didClose()).toBe(true);
+        const encoder = createPngEncoder();
+        try {
+          // Explicit synthetic-fixture interpretation, not a claim about arbitrary
+          // WGC alpha/HDR. A production adapter must establish its own alpha mode.
+          const png = await encoder.encode(
+            result,
+            'straight',
+            new AbortController().signal,
+          );
+          if (png.status !== 'image') throw new Error('NATIVE_PNG_EXPECTED');
+          try {
+            const decoded = readSyntheticPng(png.bytes);
+            try {
+              expect(
+                decoded.width === result.width &&
+                  decoded.height === result.height,
+              ).toBe(true);
+              expect(
+                decoded.rgba[left]! > 200 &&
+                  decoded.rgba[left + 1]! < 40 &&
+                  decoded.rgba[left + 2]! < 40,
+              ).toBe(true);
+              expect(
+                decoded.rgba[right]! < 40 &&
+                  decoded.rgba[right + 1]! < 40 &&
+                  decoded.rgba[right + 2]! > 200,
+              ).toBe(true);
+            } finally {
+              decoded.rgba.fill(0);
+            }
+          } finally {
+            png.bytes.fill(0);
+          }
+        } finally {
+          encoder.dispose();
+        }
       } finally {
         result.bytes.fill(0);
       }
