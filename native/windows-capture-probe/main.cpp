@@ -27,9 +27,38 @@ static void require(bool condition) {
     if (!condition) throw std::runtime_error("probe assertion");
 }
 
+struct FixtureColors { COLORREF left, right; };
+static constexpr FixtureColors redBlue{RGB(255, 0, 0), RGB(0, 0, 255)};
+static constexpr FixtureColors greenYellow{RGB(0, 255, 0), RGB(255, 255, 0)};
+
+// Unique, non-reused identity owned by the fixture, not inferred from an HWND.
+struct FixtureState final {
+    const FixtureColors colors;
+    std::atomic_bool live{true};
+    explicit FixtureState(FixtureColors value) : colors(value) {}
+};
+
 class FixtureClass final {
     static LRESULT CALLBACK procedure(HWND window, UINT message, WPARAM w, LPARAM l) {
+        if (message == WM_NCCREATE) {
+            const auto creation = reinterpret_cast<const CREATESTRUCTW*>(l);
+            if (!creation->lpCreateParams) return FALSE;
+            SetLastError(0);
+            const auto previous = SetWindowLongPtrW(window, GWLP_USERDATA,
+                reinterpret_cast<LONG_PTR>(creation->lpCreateParams));
+            if (previous == 0 && GetLastError() != 0) return FALSE;
+            return DefWindowProcW(window, message, w, l);
+        }
+        const auto state = reinterpret_cast<FixtureState*>(GetWindowLongPtrW(window, GWLP_USERDATA));
+        if (message == WM_NCDESTROY && state) {
+            state->live.store(false);
+            SetWindowLongPtrW(window, GWLP_USERDATA, 0);
+        }
+        // An explicit test-only event to exercise invalidation during frame waiting.
+        if (message == WM_APP + 1)
+            return SetWindowTextW(window, L"Paperclip synthetic blocked");
         if (message != WM_PAINT) return DefWindowProcW(window, message, w, l);
+        if (!state) return DefWindowProcW(window, message, w, l);
         PAINTSTRUCT paint{};
         const auto dc = BeginPaint(window, &paint);
         RECT area{};
@@ -39,9 +68,9 @@ class FixtureClass final {
         RECT right = area;
         right.left = left.right;
         const auto brush = static_cast<HBRUSH>(GetStockObject(DC_BRUSH));
-        SetDCBrushColor(dc, RGB(255, 0, 0));
+        SetDCBrushColor(dc, state->colors.left);
         FillRect(dc, &left, brush);
-        SetDCBrushColor(dc, RGB(0, 0, 255));
+        SetDCBrushColor(dc, state->colors.right);
         FillRect(dc, &right, brush);
         EndPaint(window, &paint);
         return 0;
@@ -60,13 +89,15 @@ public:
 };
 
 class SyntheticWindow final {
+    std::shared_ptr<FixtureState> identity_;
     HWND handle_{};
 public:
-    SyntheticWindow() {
+    explicit SyntheticWindow(FixtureColors colors = redBlue, int left = 100)
+        : identity_(std::make_shared<FixtureState>(colors)) {
         stage = "create-fixture";
         handle_ = CreateWindowExW(WS_EX_APPWINDOW, L"PaperclipSyntheticFixture",
             L"Paperclip synthetic fixture", WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-            100, 100, 320, 240, nullptr, nullptr, GetModuleHandleW(nullptr), nullptr);
+            left, 100, 320, 240, nullptr, nullptr, GetModuleHandleW(nullptr), identity_.get());
         require(handle_ != nullptr);
     }
     // Called after construction so the destructor also runs if presentation fails.
@@ -82,9 +113,15 @@ public:
     }
     SyntheticWindow(const SyntheticWindow&) = delete;
     SyntheticWindow& operator=(const SyntheticWindow&) = delete;
-    ~SyntheticWindow() { if (handle_) DestroyWindow(handle_); }
+    ~SyntheticWindow() {
+        identity_->live.store(false);
+        if (handle_) DestroyWindow(handle_);
+    }
     HWND handle() const noexcept { return handle_; }
+    std::shared_ptr<const FixtureState> identity() const noexcept { return identity_; }
     void close() {
+        // Revoke before destruction, not after delivery of an asynchronous event.
+        identity_->live.store(false);
         require(DestroyWindow(handle_) != FALSE);
         handle_ = nullptr;
     }
@@ -135,14 +172,17 @@ static void awaitClosed(const Binding& binding) {
 }
 
 #include "transport.h"
+#include "selection.h"
 
 int wmain(int argc, wchar_t** argv) {
     // Reject all external targets/options before initializing WinRT or creating windows.
     if (argc != 2) return 2;
     const bool transport = std::wcscmp(argv[1], L"--transport-self-test") == 0;
-    if (!transport && std::wcscmp(argv[1], L"--self-test") != 0) return 2;
+    const bool selection = std::wcscmp(argv[1], L"--selection-self-test") == 0;
+    if (!transport && !selection && std::wcscmp(argv[1], L"--self-test") != 0) return 2;
     try {
         if (transport) return transportSelfTest();
+        if (selection) return selectionSelfTest();
         stage = "initialize-apartment";
         Apartment apartment;
         FixtureClass fixtureClass;
