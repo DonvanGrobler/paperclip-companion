@@ -72,6 +72,11 @@ public:
     // Called after construction so the destructor also runs if presentation fails.
     void present() const {
         stage = "paint-fixture";
+        // A hidden-console child can inherit STARTF_USESHOWWINDOW/SW_HIDE.
+        // Explicitly present only our fixture without activating another app.
+        require(SetWindowPos(handle_, nullptr, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_SHOWWINDOW) != FALSE);
+        require(IsWindowVisible(handle_) != FALSE);
         UpdateWindow(handle_);
         winrt::check_hresult(DwmFlush());
     }
@@ -129,10 +134,15 @@ static void awaitClosed(const Binding& binding) {
     require(binding.closed());
 }
 
+#include "transport.h"
+
 int wmain(int argc, wchar_t** argv) {
     // Reject all external targets/options before initializing WinRT or creating windows.
-    if (argc != 2 || std::wcscmp(argv[1], L"--self-test") != 0) return 2;
+    if (argc != 2) return 2;
+    const bool transport = std::wcscmp(argv[1], L"--transport-self-test") == 0;
+    if (!transport && std::wcscmp(argv[1], L"--self-test") != 0) return 2;
     try {
+        if (transport) return transportSelfTest();
         stage = "initialize-apartment";
         Apartment apartment;
         FixtureClass fixtureClass;

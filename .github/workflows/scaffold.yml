@@ -30,6 +30,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: cmd
         run: native\windows-capture-probe\build-and-test.cmd
+      - name: Native synthetic pixel transport
+        if: runner.os == 'Windows'
+        run: npm run test:native-transport
       - name: Electron shell smoke
         if: runner.os == 'Windows'
         run: npm run test:e2e -- --repeat-each=3
