@@ -34,8 +34,8 @@ capture session or pixel buffer.
 
 The existing one-frame routine pumps messages while waiting. Recheck lifetime,
 item and metadata after acquisition before returning success. A controlled
-WM_APP event changes the fixture's title after StartCapture. That test permits
-one native candidate to be read, but requires the selection to discard it and
+WM_APP event changes the fixture's title after StartCapture. That test requires
+one native candidate to be read, and requires the selection to discard it and
 close all resources. This differs from invalidity detected **before** start,
 which must create zero capture starts. No image is returned or transported by
 this mode; pixels remain in the existing bounded staging/readback path.

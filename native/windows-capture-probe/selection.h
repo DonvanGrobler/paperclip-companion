@@ -174,11 +174,12 @@ static int selectionSelfTest() {
         stage = "selection-post-start-mutation";
         require(PostMessageW(target.handle(), WM_APP + 1, 0, 0) != FALSE);
         // Fault injection pumps that owned-window event immediately after StartCapture.
-        // One native candidate may be read, but the lease must not return success.
+        // Require a native candidate, so this proves the final metadata check
+        // rejects an acquired frame rather than passing on an unrelated timeout.
         require(!selection.acquire(20, redBlue, FrameMode::dispatchFixtureEvent));
         const auto& metrics = selection.metrics();
         stage = "selection-post-start-discard";
-        require(metrics.starts == 1 && metrics.accepted <= 1);
+        require(metrics.starts == 1 && metrics.accepted == 1);
         require(metrics.poolsClosed == metrics.pools && metrics.sessionsClosed == metrics.sessions &&
             metrics.framesClosed == metrics.frames && metrics.cleanupErrors == 0);
         FixtureMetadata after;
