@@ -1,5 +1,7 @@
 #pragma once
 #include <initializer_list>
+#include <vector>
+#include <algorithm>
 #include <d3d11.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <winrt/Windows.Graphics.DirectX.h>
@@ -10,6 +12,17 @@ using winrt::Windows::Graphics::Capture::Direct3D11CaptureFramePool;
 using winrt::Windows::Graphics::Capture::GraphicsCaptureSession;
 using winrt::Windows::Graphics::DirectX::DirectXPixelFormat;
 using winrt::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice;
+
+struct FramePixels final {
+    int width{}, height{};
+    std::vector<unsigned char> bytes;
+    ~FramePixels() {
+        if (!bytes.empty()) SecureZeroMemory(bytes.data(), bytes.size());
+    }
+    FramePixels() = default;
+    FramePixels(const FramePixels&) = delete;
+    FramePixels& operator=(const FramePixels&) = delete;
+};
 
 enum class FrameMode { success, cancelBeforeStart, cancelAfterStart, expiredDeadline, rejectFrame };
 struct FrameMetrics {
@@ -53,7 +66,7 @@ static void pumpFrameWait() {
 }
 
 // Only called by the explicit synthetic self-test. Never a production capture API.
-static bool captureOne(const Binding& binding, FrameMode mode, FrameMetrics& metrics) {
+static bool captureOne(const Binding& binding, FrameMode mode, FrameMetrics& metrics, FramePixels* output = nullptr) {
     if (binding.closed() || mode == FrameMode::cancelBeforeStart) return false;
     stage = "capture-supported";
     require(GraphicsCaptureSession::IsSupported());
@@ -128,6 +141,12 @@ static bool captureOne(const Binding& binding, FrameMode mode, FrameMetrics& met
     }
     if (result == DXGI_ERROR_WAS_STILL_DRAWING) return false;
     winrt::check_hresult(result);
+    // Allocation/validation can throw while mapped; unmap before releasing texture.
+    struct UnmapScope final {
+        ID3D11DeviceContext* context;
+        ID3D11Resource* resource;
+        ~UnmapScope() { context->Unmap(resource, 0); }
+    } unmap{context.get(), readback.get()};
     // Inspect only valid ContentSize landmarks, never padding or unrelated pixels.
     bool colors = false;
     if (mapped.pData && mapped.RowPitch >= static_cast<UINT>(content.Width) * 4) {
@@ -138,10 +157,21 @@ static bool captureOne(const Binding& binding, FrameMode mode, FrameMetrics& met
         colors = left[2] > 200 && left[1] < 40 && left[0] < 40 &&
             right[0] > 200 && right[1] < 40 && right[2] < 40;
     }
-    context->Unmap(readback.get(), 0);
     stage = "synthetic-landmarks";
     require(colors);
     if (binding.closed()) return false;
+    if (output) {
+        stage = "copy-content-rows";
+        const auto rowBytes = static_cast<size_t>(content.Width) * 4;
+        output->bytes.resize(rowBytes * static_cast<size_t>(content.Height));
+        for (int y = 0; y < content.Height; ++y) {
+            std::copy_n(static_cast<const unsigned char*>(mapped.pData) + static_cast<size_t>(y) * mapped.RowPitch,
+                rowBytes, output->bytes.data() + static_cast<size_t>(y) * rowBytes);
+        }
+        output->width = content.Width;
+        output->height = content.Height;
+        if (binding.closed()) return false;
+    }
     ++metrics.accepted;
     return true;
 }

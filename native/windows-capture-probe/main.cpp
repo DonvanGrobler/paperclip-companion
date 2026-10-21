@@ -129,10 +129,15 @@ static void awaitClosed(const Binding& binding) {
     require(binding.closed());
 }
 
+#include "transport.h"
+
 int wmain(int argc, wchar_t** argv) {
     // Reject all external targets/options before initializing WinRT or creating windows.
-    if (argc != 2 || std::wcscmp(argv[1], L"--self-test") != 0) return 2;
+    if (argc != 2) return 2;
+    const bool transport = std::wcscmp(argv[1], L"--transport-self-test") == 0;
+    if (!transport && std::wcscmp(argv[1], L"--self-test") != 0) return 2;
     try {
+        if (transport) return transportSelfTest();
         stage = "initialize-apartment";
         Apartment apartment;
         FixtureClass fixtureClass;
