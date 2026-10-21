@@ -58,6 +58,7 @@ export function createScreenConsent() {
   let presentation: ScreenConsentPresentation | null = null;
   let grant: ScreenConsentGrant | null = null;
   let controller: AbortController | null = null;
+  let transition: object | null = null;
   let changing = false;
   let disposed = false;
 
@@ -73,12 +74,21 @@ export function createScreenConsent() {
   return Object.freeze({
     /** Null is disconnect. Invalid/unsupported context also revokes, returning false. */
     updateDestination(value: unknown): boolean {
-      if (disposed || changing) return false;
+      if (disposed) return false;
+      if (changing) {
+        // A nested registry update cannot be dropped while preserving old consent.
+        transition = {};
+        destination = null;
+        invalidate();
+        return false;
+      }
+      const ticket = {};
+      transition = ticket;
       changing = true;
       try {
         const next = value === null ? null : parseDestination(value);
-        // A reflective trap may have disposed the owner while parsing.
-        if (disposed) return false;
+        // Reflective callbacks may dispose us or interrupt with another update.
+        if (disposed || transition !== ticket) return false;
         const same =
           destination === null
             ? next === null
@@ -91,7 +101,11 @@ export function createScreenConsent() {
           destination = next;
           invalidate();
         }
-        return !disposed && (value === null || next !== null);
+        return (
+          !disposed &&
+          transition === ticket &&
+          (value === null || next !== null)
+        );
       } finally {
         changing = false;
       }

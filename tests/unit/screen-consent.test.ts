@@ -399,6 +399,27 @@ it('honors withdrawal during context inspection without allowing reentrant accep
   expect(owner.isCurrent(accepted(owner))).toBe(true);
 });
 
+it('fails closed when context inspection reenters destination updates', () => {
+  const owner = ready();
+  const grant = accepted(owner);
+  const context = new Proxy(
+    { ...destination },
+    {
+      ownKeys(target) {
+        expect(owner.updateDestination(null)).toBe(false);
+        return Reflect.ownKeys(target);
+      },
+    },
+  );
+  expect(owner.updateDestination(context)).toBe(false);
+  expect(grant.signal.aborted).toBe(true);
+  expect(owner.current()).toBeNull();
+  expect(owner.isCurrent(grant)).toBe(false);
+  expect(owner.present()).toBeNull();
+  expect(owner.updateDestination(destination)).toBe(true);
+  expect(owner.current()).toBeNull();
+});
+
 it('composes current consent facts with every independent authorization prerequisite', () => {
   const owner = ready();
   const grant = accepted(owner);

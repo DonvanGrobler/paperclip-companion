@@ -60,7 +60,9 @@ retains the destination but requires a new choice. Disposal is permanent; a new
 owner cannot accept the previous owner's objects.
 
 During invalidation, reads yield no current grant and presentation/acceptance/
-destination updates are rejected. In particular, an abort callback cannot create
+destination updates are rejected. A nested destination update also clears the
+context and invalidates the outer transition, so a disconnect cannot be dropped
+or overwritten by an already-inspected context. In particular, an abort callback cannot create
 a replacement grant inside the revocation transition. Withdrawal and terminal
 disposal are still honored during reflective/abort callbacks. Destination updates
 that return false must be treated as unavailable by a future trusted caller;
