@@ -46,3 +46,44 @@ a new unseen evaluation partition. No natural-language privacy guarantees are cl
 Run `npm run evaluate:intent` for ID/count-only results. `npm run check` also checks
 corpus integrity, control precedence, the negative cases and baseline prediction drift.
 Capture is not enabled and the classifier is not connected to the app runtime.
+
+## Visual response-quality corpus (P3-06)
+
+`vision-cases.json` defines twenty distinct synthetic image/question pairs: four
+eligible P0 images plus sixteen new `vision/screens/*.png` images. Each case has
+grounded observations, useful next steps, material unknowns and forbidden claims.
+Four cases exercise absent/concealed information, and two have hostile text.
+Four additional policy controls expect **no image delivery**; those are excluded
+from the model-quality denominator. Twenty-two images are referenced in total.
+
+All sixteen new images and their text/geometry were independently authored for
+this project on 21 October 2026 by the development assistant. The new generator
+reuses the project's original pixel glyphs and adds original punctuation. It
+loads no outside font or UI asset. The covered field never contained an
+identifier; the example hostname is synthetic. Original-code licensing remains
+pending as above; no new app/CI dependency or binary redistribution is introduced.
+
+Optional regeneration: `python tests/fixtures/generate-vision-screens.py` using
+Pillow 12.3.0. The original generator is guarded so loading its glyphs does not
+rewrite the six P0 screens. Repeated generation in the authoring environment is
+byte-identical and leaves those six unchanged. Python/zlib changes can alter PNG
+compression; inspect output and deliberately update pinned hashes only after
+review. Neither generator nor CI rewrites the manifest.
+
+`npm run check` validates hashes (including the question/rubric manifest), exact
+membership, references, coverage and metadata-free bounded PNG structure. Windows
+Electron E2E independently decodes all twenty-two images. Tests print only IDs
+and booleans/metadata, never pixel buffers. Temporary public fixture decoding
+does not enable real capture or persistent screenshot storage.
+
+After changing Electron fixture tests, also run `npx playwright test --list`
+locally, even without a graphical session. It checks Playwright/Node test-module
+collection, including explicit JSON import attributes, before Windows CI executes
+the tests. Collection success alone is not an Electron execution result.
+
+The [P4 grading protocol](../../docs/test-plan/P3-06-vision-quality.md) covers all
+five response-quality dimensions, excludes answer annotations from model input
+and requires repeated real-model evaluation. The baseline is **not run**. These
+same-author schematics are not an independent benchmark, real-provider results,
+runtime policy/UI implementation or physical Windows/DPI evidence. See
+[ADR 0027](../../docs/adr/0027-synthetic-vision-corpus.md).
