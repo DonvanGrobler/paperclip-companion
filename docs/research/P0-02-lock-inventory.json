@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-20",
+  "date": "2026-10-27",
   "scope": "Lockfile package metadata, not a release-license clearance or binary SBOM",
   "packages": [
     {
@@ -676,11 +676,11 @@
     },
     {
       "path": "node_modules/electron",
-      "version": "44.7.0",
+      "version": "44.9.3",
       "license": "MIT",
       "dev": true,
       "optional": false,
-      "integrity": "sha512-aUq9/zLAAFYc+a9gy6cd0C3Y/N/RmovLCD8TV8LhIzNhuND6HEgsu96jJz9cbAxvckSPv+Trf2PKEjktoZgFkw=="
+      "integrity": "sha512-Cv9/yMnZxNWsMlIe8T4v//NKHdUvbeyoTJoXE3BIcRxus2meeFaO9h/P3zB5d4cBXum51IgAYrT2QjpIDWKpJA=="
     },
     {
       "path": "node_modules/env-paths",
@@ -1404,11 +1404,11 @@
     },
     {
       "path": "node_modules/undici",
-      "version": "7.30.0",
+      "version": "7.30.1",
       "license": "MIT",
       "dev": true,
       "optional": true,
-      "integrity": "sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ=="
+      "integrity": "sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg=="
     },
     {
       "path": "node_modules/undici-types",

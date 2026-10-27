@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-27",
+  "issue": 88,
+  "baseline": "15d0b5ae474ec57648a087840a7492342f28090a",
+  "scope": "Two changed published npm package artifacts only; not a binary SBOM, source-license adoption or release clearance",
+  "packages": [
+    {
+      "path": "node_modules/electron",
+      "previousVersion": "44.7.0",
+      "version": "44.9.3",
+      "registryTarball": "https://registry.npmjs.org/electron/-/electron-44.9.3.tgz",
+      "integrity": "sha512-Cv9/yMnZxNWsMlIe8T4v//NKHdUvbeyoTJoXE3BIcRxus2meeFaO9h/P3zB5d4cBXum51IgAYrT2QjpIDWKpJA==",
+      "declaredLicense": "MIT",
+      "dev": true,
+      "optional": false,
+      "engines": {
+        "node": ">= 22.12.0"
+      },
+      "installLifecycleScripts": {},
+      "prepareScript": null,
+      "notice": {
+        "path": "LICENSE",
+        "sha256": "5154e165bd6c2cc0cfbcd8916498c7abab0497923bafcd5cb07673fe8480087d",
+        "bytes": 1096
+      },
+      "review": "Installed published-package MIT notice read; no changed license declaration, engine or dependency range. Electron binary third-party notice/release verification remains separate."
+    },
+    {
+      "path": "node_modules/undici",
+      "previousVersion": "7.30.0",
+      "version": "7.30.1",
+      "registryTarball": "https://registry.npmjs.org/undici/-/undici-7.30.1.tgz",
+      "integrity": "sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==",
+      "declaredLicense": "MIT",
+      "dev": true,
+      "optional": true,
+      "engines": {
+        "node": ">=20.18.1"
+      },
+      "installLifecycleScripts": {},
+      "prepareScript": "husky && node ./scripts/platform-shell.js",
+      "notice": {
+        "path": "LICENSE",
+        "sha256": "a6db8096b2707bc0102d256917d4d33f298ba36d8c3f25de067a2b5bb379db27",
+        "bytes": 1090
+      },
+      "review": "Installed published-package MIT notice read; no changed license declaration, engine or dependency range. Electron binary third-party notice/release verification remains separate."
+    }
+  ]
+}
