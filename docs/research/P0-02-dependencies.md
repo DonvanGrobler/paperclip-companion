@@ -1,9 +1,10 @@
 # P0-02 dependency inventory
 
-Originally reviewed 9 October 2026; dependency versions reviewed again 20 October 2026 for issue #62 ([maintenance evidence](../evidence/dependency-maintenance-2026-10-20.md)), then security-patched on 27 October for issue #88 ([security evidence](../evidence/security-maintenance-2026-10-27.md)). Exact versions and integrity hashes are in package-lock.json. [Machine-readable metadata](P0-02-lock-inventory.json) covers all 184 locked package entries, including platform-specific optional packages. No missing license field was found. This metadata inventory does not replace release-artifact license verification.
+Originally reviewed 9 October 2026; dependency versions reviewed again 20 October 2026 for issue #62 ([maintenance evidence](../evidence/dependency-maintenance-2026-10-20.md)), then security-patched on 27 October for issue #88 ([security evidence](../evidence/security-maintenance-2026-10-27.md)). Exact versions and integrity hashes are in package-lock.json. [Machine-readable metadata](P0-02-lock-inventory.json) covers all 185 locked package entries, including platform-specific optional packages. No missing license field was found. This metadata inventory does not replace release-artifact license verification.
 
 | Direct package                 | Version | Declared license | Role                                              |
 | ------------------------------ | ------- | ---------------- | ------------------------------------------------- |
+| jose                           | 6.2.13  | MIT              | Unwired main ID-token verification                |
 | react, react-dom               | 19.3.0  | MIT              | Bundled renderer runtime                          |
 | electron                       | 44.9.3  | MIT for Electron | Desktop runtime, installed as development tooling |
 | vite                           | 8.3.4   | MIT              | Build tooling                                     |
@@ -26,3 +27,5 @@ Electron embeds Chromium, Node and other third-party components; the npm package
 npm audit at implementation time reported zero known vulnerabilities across the dependency graph. This is advisory-database evidence at one point in time, not a guarantee of security or a full review of the Electron binary. No private registry credentials, account credentials or provider SDKs were introduced.
 
 The 27 October review changes only Electron 44.7.0 → 44.9.3 and downloader-transitive Undici 7.30.0 → 7.30.1 within @electron/get 5.1.0's existing ^7.24.4 optional range. Both installed package notices retain MIT; [exact artifact/license evidence](2026-10-27-dependency-licenses.json) records SHA-512 package pins and SHA-256 notice hashes. No package paths, dependency ranges, engines or dev/optional classifications changed. These runtime security patches do not establish human display/DPI validation or full Electron binary redistribution clearance.
+
+P4-02b / issue #90 adds exact jose 6.2.13 as one production-classified dependency for the future main verifier. It has zero transitive dependencies and no install lifecycle; all existing lock entries remain unchanged. [Artifact/license review](2026-10-27-jose-license.json) records the inspected MIT notice and integrity pin. The new verifier remains imported only by tests, so current application bundles/renderer notices do not change. Preserve this library notice when production wiring eventually bundles it.

@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-27",
+  "issue": 90,
+  "baseline": "19a6db2b7f7a82d62928bbbb1aef05b61e1a2217",
+  "scope": "New unwired main-only crypto dependency; not project-license adoption, provider permission or release clearance",
+  "package": {
+    "path": "node_modules/jose",
+    "version": "6.2.13",
+    "license": "MIT",
+    "registryTarball": "https://registry.npmjs.org/jose/-/jose-6.2.13.tgz",
+    "integrity": "sha512-7TIg10ZE1x82YediN+lcrPNvGMKge9yFHQD+Qho/b8y2adfugU3AsvvHfxV0fzyFllT6l9xCjf4RWY9g/Z9PJQ==",
+    "dev": false,
+    "optional": false,
+    "dependencies": {},
+    "installLifecycleScripts": {},
+    "notice": {
+      "path": "LICENSE.md",
+      "sha256": "8078b0829d6c3e9ecde2f003e1966e4cad3efc6e7a640efbab0313cc166b1af1",
+      "bytes": 1079
+    },
+    "upstreamLicense": "https://github.com/panva/jose/blob/v6.2.13/LICENSE.md",
+    "upstreamLicenseGitBlob": "d0ec038a85d95944b66fec1b44cbb1ade45919b7"
+  },
+  "review": "Exact supported v6 package/API/metadata and installed MIT notice read; zero transitive dependencies and no install lifecycle. Only one package path added, all old records unchanged. Current app entry points do not import the verifier, so current renderer/main bundles do not include jose. Preserve MIT notice when bundled in a later production integration; project stays UNLICENSED. No DevKit code/sample/asset copied."
+}
