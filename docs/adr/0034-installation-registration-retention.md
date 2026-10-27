@@ -74,6 +74,12 @@ malware, backup restoration and disk loss can alter/remove identifiers. Native
 Node filesystem behavior is verified separately on Linux and Windows CI; neither
 is a physical power-loss test.
 
+The native restart test uses the repository's minimal child-spawn environment
+(only SystemRoot when present), an absolute Node executable/script, no shell,
+windowsHide and detached false. Child checks deny inherited NODE_OPTIONS and a
+synthetic private sentinel; only nonsecret synthetic metadata travels on stdin
+and only a boolean result returns. No user credential environment is required.
+
 ## Transaction ordering and retry context
 
 Require a synchronous trusted `retainRegistration({hostId, clientId}, signal)`

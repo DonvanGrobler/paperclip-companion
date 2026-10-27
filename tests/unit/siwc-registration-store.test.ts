@@ -20,6 +20,7 @@ beforeEach(() => {
 afterEach(() => {
   store?.dispose();
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
   fs.rmSync(directory, { recursive: true, force: true });
 });
 function opened() {
@@ -502,6 +503,8 @@ it.each(['abort', 'dispose'] as const)(
   },
 );
 it('restores installation and registration IDs in a separate native Node process', async () => {
+  vi.stubEnv('NODE_OPTIONS', '--no-warnings');
+  vi.stubEnv('PAPERCLIP_REGISTRATION_PRIVATE', 'synthetic');
   const owner = opened();
   const hostId = owner.read()!.hostId;
   expect(owner.retainRegistration({ hostId, clientId: 'one' }, signal())).toBe(
@@ -518,7 +521,15 @@ it('restores installation and registration IDs in a separate native Node process
         ),
         directory,
       ],
-      { stdio: ['pipe', 'pipe', 'pipe'], shell: false },
+      {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        shell: false,
+        windowsHide: true,
+        detached: false,
+        env: process.env.SystemRoot
+          ? { SystemRoot: process.env.SystemRoot }
+          : {},
+      },
     );
     let output = '';
     let errors = false;
