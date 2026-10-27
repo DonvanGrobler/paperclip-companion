@@ -638,6 +638,7 @@ it.each([false, true])(
     let authorization: URL | undefined;
     const owner = createSiwcAuthTransaction({
       hostId: value.hostId,
+      retainRegistration: () => true, // Metadata is a fake in this storage-only composition.
       async openAuthorization(url) {
         authorization = new URL(url);
       },

@@ -1,4 +1,8 @@
 import { createHash, randomUUID } from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { openSiwcRegistrationStore } from '../../src/main/siwc-registration-store';
 import { afterEach, expect, it, vi } from 'vitest';
 import {
   createSiwcAuthTransaction,
@@ -54,6 +58,7 @@ function harness(overrides: Partial<SiwcAuthHooks> = {}) {
   };
   const hooks: SiwcAuthHooks = {
     hostId: 'synthetic-host-1',
+    retainRegistration: () => true, // Explicit test fake, no persistence evidence.
     async openAuthorization(url, currentSignal) {
       counts.launch++;
       launch = new URL(url);
@@ -145,6 +150,451 @@ function harness(overrides: Partial<SiwcAuthHooks> = {}) {
 async function flush() {
   for (let i = 0; i < 12; i++) await Promise.resolve();
 }
+
+it.each(['throw', 'promise', 'undefined', 'truthy'])(
+  'denies a %s retention result before exchange',
+  async (kind) => {
+    const h = harness({
+      retainRegistration: (() => {
+        if (kind === 'throw') throw new Error(`synthetic:${randomUUID()}`);
+        return kind === 'promise'
+          ? Promise.resolve(true)
+          : kind === 'truthy'
+            ? 1
+            : undefined;
+      }) as never,
+    });
+    try {
+      const pending = h.owner.begin(input());
+      h.callback();
+      expect(await pending).toEqual({
+        status: 'stopped',
+        reason: 'registration-commit-failed',
+      });
+      expect(h.counts.exchange + h.counts.verify + h.counts.prepare).toBe(0);
+    } finally {
+      h.owner.dispose();
+    }
+  },
+);
+it('retains before exchange, identity verification and credential preparation', async () => {
+  let retained = false;
+  const h = harness({
+    retainRegistration() {
+      expect(h.counts.exchange + h.counts.verify + h.counts.prepare).toBe(0);
+      retained = true;
+      return true;
+    },
+  });
+  try {
+    const pending = h.owner.begin(input());
+    h.callback();
+    expect((await pending).status).toBe('authenticated');
+    expect(retained && h.counts.exchange === 1 && h.counts.commit === 1).toBe(
+      true,
+    );
+  } finally {
+    h.owner.dispose();
+  }
+});
+it.each(['cancel', 'invalidate', 'dispose', 'timeout'] as const)(
+  'stops after %s inside retention without reaching exchange',
+  async (action) => {
+    vi.useFakeTimers();
+    const h = harness({
+      retainRegistration() {
+        if (action === 'timeout') vi.advanceTimersByTime(120001);
+        else h.owner[action]();
+        return true;
+      },
+    });
+    try {
+      const pending = h.owner.begin(input());
+      h.callback();
+      expect(await pending).toEqual({
+        status: 'stopped',
+        reason:
+          action === 'cancel'
+            ? 'cancelled'
+            : action === 'invalidate'
+              ? 'context-changed'
+              : action === 'dispose'
+                ? 'disposed'
+                : 'timeout',
+      });
+      expect(h.counts.exchange + h.counts.prepare).toBe(0);
+      expect(h.owner.current()).toBeNull();
+    } finally {
+      h.owner.dispose();
+    }
+  },
+);
+it.each(['invalid-state', 'denied', 'cancelled'])(
+  'never retains identifiers from an %s attempt',
+  async (kind) => {
+    let calls = 0;
+    const h = harness({
+      retainRegistration() {
+        calls++;
+        return true;
+      },
+    });
+    try {
+      const pending = h.owner.begin(input());
+      if (kind === 'cancelled') h.owner.cancel();
+      h.callback((url) => {
+        if (kind === 'invalid-state') url.searchParams.set('state', 'bad');
+        if (kind === 'denied') {
+          url.searchParams.delete('code');
+          url.searchParams.set('error', 'access_denied');
+        }
+      });
+      expect((await pending).status).toBe('stopped');
+      expect(calls).toBe(0);
+    } finally {
+      h.owner.dispose();
+    }
+  },
+);
+it('keeps the prior accepted session when replacement registration cannot be retained', async () => {
+  let count = 0;
+  const h = harness({
+    retainRegistration() {
+      return ++count === 1;
+    },
+  });
+  try {
+    const initial = h.owner.begin(input());
+    h.callback();
+    await initial;
+    const previous = h.owner.current();
+    const replacement = h.owner.begin(input());
+    h.callback();
+    expect(await replacement).toEqual({
+      status: 'stopped',
+      reason: 'registration-commit-failed',
+    });
+    expect(h.owner.current() === previous && h.counts.exchange === 1).toBe(
+      true,
+    );
+  } finally {
+    h.owner.dispose();
+  }
+});
+it.each([
+  null,
+  {},
+  { clientId, idTokenHint: null, extra: true },
+  { clientId: 'dynamic_agent_client', idTokenHint: null },
+  { clientId: 'other-client', idTokenHint: null },
+  { clientId, idTokenHint: 'bare-token-denied' },
+  { clientId, idTokenHint: { ...account, idToken: '' } },
+  { clientId, idTokenHint: { ...account, idToken: 'x'.repeat(16385) } },
+  { clientId, idTokenHint: { ...account, idToken: 'bad\nvalue' } },
+  {
+    clientId,
+    idTokenHint: {
+      ...account,
+      idToken: 'synthetic',
+      issuer: 'https://other.invalid',
+    },
+  },
+  {
+    clientId,
+    idTokenHint: { ...account, idToken: 'synthetic', subject: 'other-subject' },
+  },
+  {
+    clientId,
+    idTokenHint: { ...account, idToken: 'synthetic', clientId: 'other-client' },
+  },
+  {
+    clientId,
+    idTokenHint: { ...account, idToken: 'synthetic', accessToken: 'forbidden' },
+  },
+])(
+  'rejects invalid or incorrectly bound registration/hint contexts before launch %#',
+  async (registration) => {
+    const h = harness();
+    try {
+      expect(
+        await h.owner.begin({ redirectUri, account, registration }),
+      ).toEqual({ status: 'stopped', reason: 'invalid-input' });
+      expect(h.counts.launch).toBe(0);
+    } finally {
+      h.owner.dispose();
+    }
+  },
+);
+it('rejects an identity hint for an unbound registration and any email login hint', async () => {
+  const h = harness();
+  try {
+    for (const value of [
+      {
+        ...input(),
+        registration: {
+          clientId,
+          idTokenHint: { ...account, idToken: 'synthetic' },
+        },
+      },
+      { redirectUri, account, login_hint: 'synthetic@example.invalid' },
+    ])
+      expect(await h.owner.begin(value)).toEqual({
+        status: 'stopped',
+        reason: 'invalid-input',
+      });
+    expect(h.counts.launch).toBe(0);
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('never invokes a hint accessor and absorbs reflective hint exceptions', async () => {
+  const h = harness();
+  let reads = 0;
+  const accessor = { ...account, idToken: 'synthetic' };
+  Object.defineProperty(accessor, 'idToken', {
+    get() {
+      reads++;
+      return 'synthetic';
+    },
+  });
+  try {
+    for (const idTokenHint of [
+      accessor,
+      new Proxy(accessor, {
+        ownKeys() {
+          throw new Error('PRIVATE');
+        },
+      }),
+    ])
+      expect(
+        await h.owner.begin({
+          redirectUri,
+          account,
+          registration: { clientId, idTokenHint },
+        }),
+      ).toEqual({ status: 'stopped', reason: 'invalid-input' });
+    expect(reads + h.counts.launch).toBe(0);
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('copies bound hints before asynchronous browser work and still requires fresh matching identity', async () => {
+  const h = harness({
+    async verifyIdentity(_token, expected) {
+      return {
+        ...expected,
+        subject: 'wrong-subject',
+        expiresAt: Date.now() + 3600000,
+      };
+    },
+  });
+  const marker = `synthetic:${randomUUID()}`;
+  const hint = { ...account, idToken: marker };
+  const selected = { ...account };
+  try {
+    const pending = h.owner.begin({
+      redirectUri,
+      account: selected,
+      registration: { clientId, idTokenHint: hint },
+    });
+    hint.idToken = 'changed';
+    hint.subject = 'wrong-subject';
+    selected.subject = 'wrong-subject';
+    expect(h.launch.searchParams.get('id_token_hint') === marker).toBe(true);
+    for (const denied of ['access_token', 'refresh_token', 'login_hint'])
+      expect(h.launch.searchParams.has(denied)).toBe(false);
+    h.callback();
+    expect(await pending).toEqual({
+      status: 'stopped',
+      reason: 'verification-failed',
+    });
+    expect(h.counts.prepare).toBe(0);
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('rejects a changed callback client for a pending issued registration without retaining or exchanging', async () => {
+  let retained = 0;
+  const h = harness({
+    retainRegistration() {
+      retained++;
+      return true;
+    },
+  });
+  try {
+    const pending = h.owner.begin({
+      ...input(),
+      registration: { clientId, idTokenHint: null },
+    });
+    h.callback((url) => url.searchParams.set('client_id', 'other-client'));
+    expect((await pending).status).toBe('stopped');
+    expect(retained + h.counts.exchange).toBe(0);
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('retains a client through failed exchange and restart, retrying only with fresh proof', async () => {
+  const directory = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'paperclip-auth-registration-'),
+  );
+  let metadata = openSiwcRegistrationStore(directory)!;
+  const hostId = metadata.read()!.hostId;
+  const first = harness({
+    hostId,
+    retainRegistration: (record, signal) =>
+      metadata.retainRegistration(record, signal),
+    async exchange() {
+      throw new Error('invalid_grant');
+    },
+  });
+  let next: ReturnType<typeof harness> | null = null;
+  try {
+    const pending = first.owner.begin(input());
+    const prior = first.launch;
+    first.callback();
+    expect(await pending).toEqual({
+      status: 'stopped',
+      reason: 'exchange-failed',
+    });
+    const slot = metadata.read()!.registrations[0]!;
+    expect(slot.clientId === clientId).toBe(true);
+    first.owner.dispose();
+    metadata.dispose();
+    metadata = openSiwcRegistrationStore(directory)!;
+    expect(
+      metadata.read()!.hostId === hostId &&
+        metadata.read()!.registrations[0]?.registrationId ===
+          slot.registrationId,
+    ).toBe(true);
+    next = harness({
+      hostId,
+      retainRegistration: (record, signal) =>
+        metadata.retainRegistration(record, signal),
+    });
+    const retry = next.owner.begin({
+      ...input(),
+      registration: { clientId: slot.clientId, idTokenHint: null },
+    });
+    expect(
+      next.launch.searchParams.get('client_id') === clientId &&
+        !next.launch.searchParams.has('agent_name_hint'),
+    ).toBe(true);
+    for (const name of ['state', 'nonce', 'code_challenge'])
+      expect(
+        prior.searchParams.get(name) !== next.launch.searchParams.get(name),
+      ).toBe(true);
+    expect(
+      next.owner.callback(
+        new URL(
+          redirectUri +
+            '?state=' +
+            prior.searchParams.get('state') +
+            '&code=synthetic',
+        ).href,
+      ),
+    ).toBe(false);
+    expect(await retry).toEqual({
+      status: 'stopped',
+      reason: 'invalid-callback',
+    });
+    const fresh = next.owner.begin({
+      ...input(),
+      registration: { clientId: slot.clientId, idTokenHint: null },
+    });
+    next.callback((url) => url.searchParams.delete('client_id'));
+    expect((await fresh).status).toBe('authenticated');
+    expect(
+      Object.keys(
+        JSON.parse(
+          fs.readFileSync(
+            path.join(directory, 'registrations.v1.json'),
+            'utf8',
+          ),
+        ) as object,
+      ).sort(),
+    ).toEqual(['hostId', 'registrations', 'version']);
+  } finally {
+    first.owner.dispose();
+    next?.owner.dispose();
+    metadata.dispose();
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+it('requires durable registration success before exchange, preserving a fixed failure result', async () => {
+  let retained = 0;
+  const h = harness({
+    retainRegistration(record, signal) {
+      retained++;
+      expect(Object.isFrozen(record) && Object.keys(record).length === 2).toBe(
+        true,
+      );
+      expect(
+        record.hostId === 'synthetic-host-1' &&
+          record.clientId === clientId &&
+          !signal.aborted,
+      ).toBe(true);
+      return false;
+    },
+  });
+  try {
+    const pending = h.owner.begin(input());
+    h.callback();
+    expect(await pending).toEqual({
+      status: 'stopped',
+      reason: 'registration-commit-failed',
+    });
+    expect(retained).toBe(1);
+    expect(h.counts.exchange).toBe(0);
+    expect(h.owner.current()).toBeNull();
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('retries an issued but unbound registration with fresh proof and no bootstrap/name', async () => {
+  const h = harness();
+  try {
+    const pending = h.owner.begin({
+      ...input(),
+      registration: { clientId, idTokenHint: null },
+    });
+    expect(h.counts.launch).toBe(1);
+    expect(h.launch.searchParams.get('client_id')).toBe(clientId);
+    expect(h.launch.searchParams.has('agent_name_hint')).toBe(false);
+    expect(h.launch.searchParams.has('id_token_hint')).toBe(false);
+    expect(h.callback((url) => url.searchParams.delete('client_id'))).toBe(
+      true,
+    );
+    expect((await pending).status).toBe('authenticated');
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('uses a main-only bound retained ID hint only at the fixed authorization endpoint', async () => {
+  const h = harness();
+  const hint = `synthetic:${randomUUID()}:&?`;
+  try {
+    const pending = h.owner.begin({
+      redirectUri,
+      account,
+      registration: { clientId, idTokenHint: { ...account, idToken: hint } },
+    });
+    expect(h.counts.launch).toBe(1);
+    expect(h.launch.origin + h.launch.pathname).toBe(
+      'https://auth.openai.com/api/accounts/authorize',
+    );
+    expect(h.launch.searchParams.get('id_token_hint') === hint).toBe(true);
+    h.callback();
+    expect((await pending).status).toBe('authenticated');
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('rejects a missing retention capability at construction instead of supplying a permissive default', () => {
+  expect(() => harness({ retainRegistration: undefined as never })).toThrow(
+    'Invalid sign-in configuration',
+  );
+});
 
 it('does no work while idle and rejects calls after terminal disposal', async () => {
   vi.useFakeTimers();
