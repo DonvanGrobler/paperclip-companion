@@ -542,6 +542,7 @@ it.each(['valid', 'signature', 'nonce', 'endpoint'] as const)(
       metadata.jwks_uri = 'https://untrusted.invalid/keys';
     const transaction = createSiwcAuthTransaction({
       hostId: 'synthetic-host',
+      retainRegistration: () => true, // Explicit fake; this suite exercises key trust.
       async openAuthorization(url) {
         authorization = new URL(url);
       },
