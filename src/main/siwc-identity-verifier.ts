@@ -52,6 +52,34 @@ function expectedContext(value: unknown) {
     return null;
   }
 }
+/** Shared main-only input grammar. Reading a header never establishes identity or key trust. */
+export function readSiwcIdentityInput(token: unknown, expected: unknown) {
+  try {
+    if (
+      typeof token !== 'string' ||
+      token.length > 16384 ||
+      !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)
+    )
+      return null;
+    const context = expectedContext(expected);
+    if (!context || token.indexOf('.') > 1024) return null;
+    const header = decodeProtectedHeader(token);
+    if (
+      Object.keys(header).some((k) => !['alg', 'kid', 'typ'].includes(k)) ||
+      header.alg !== 'RS256' ||
+      !id(header.kid) ||
+      (header.typ !== undefined && header.typ !== 'JWT')
+    )
+      return null;
+    return Object.freeze({
+      token,
+      expected: Object.freeze(context),
+      kid: header.kid,
+    });
+  } catch {
+    return null;
+  }
+}
 /** Trusted main-only normalized public snapshot, never keys taken from a JWT. */
 function keySnapshot(value: unknown) {
   if (
@@ -144,30 +172,14 @@ export function createSiwcIdentityVerifier(initialKeys: unknown) {
       const version = generation;
       const keys = resolver;
       try {
-        if (
-          disposed ||
-          !keys ||
-          signal.aborted ||
-          typeof token !== 'string' ||
-          token.length > 16384 ||
-          !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)
-        )
+        if (disposed || !keys || signal.aborted) return null;
+        const input = readSiwcIdentityInput(token, expected);
+        if (!input || disposed || version !== generation || signal.aborted)
           return null;
-        const context = expectedContext(expected);
-        if (!context || disposed || version !== generation || signal.aborted)
-          return null;
-        if (token.indexOf('.') > 1024) return null;
-        const header = decodeProtectedHeader(token);
-        if (
-          Object.keys(header).some((k) => !['alg', 'kid', 'typ'].includes(k)) ||
-          header.alg !== 'RS256' ||
-          !id(header.kid) ||
-          (header.typ !== undefined && header.typ !== 'JWT')
-        )
-          return null;
+        const context = input.expected;
         const started = Date.now();
         if (!clock(started)) return null;
-        const { payload } = await jwtVerify(token, keys, {
+        const { payload } = await jwtVerify(input.token, keys, {
           algorithms: ['RS256'],
           issuer: ISSUER,
           audience: context.audience,
