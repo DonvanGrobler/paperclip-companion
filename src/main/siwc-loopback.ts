@@ -29,9 +29,9 @@ function respond(response: http.ServerResponse, accepted: boolean): void {
   response.end(body);
 }
 
-/** Main-only, one-attempt listener. The callback and signals are trusted capabilities. */
+/** Main-only, one-attempt listener. The synchronous callback and signals are trusted capabilities. */
 export async function startSiwcLoopbackListener(
-  callback: (url: string) => boolean,
+  callback: (url: string) => void,
   signal: AbortSignal,
   lifetimeMs = 120000,
 ): Promise<SiwcLoopbackListener | null> {
@@ -52,7 +52,7 @@ export async function startSiwcLoopbackListener(
     let port = 0;
     let expected: Buffer | undefined;
     let attemptSignal: AbortSignal | undefined;
-    let deliver: ((url: string) => boolean) | undefined = callback;
+    let deliver: ((url: string) => void) | undefined = callback;
     let resolveClosed: () => void = () => {};
     const closed = new Promise<void>((done) => {
       resolveClosed = done;
@@ -64,6 +64,7 @@ export async function startSiwcLoopbackListener(
       clearTimeout(timer);
       signal.removeEventListener('abort', onAbort);
       attemptSignal?.removeEventListener('abort', onAbort);
+      attemptSignal = undefined;
       expected?.fill(0);
       expected = undefined;
       deliver = undefined;
@@ -195,8 +196,8 @@ export async function startSiwcLoopbackListener(
       });
       resolve(owner);
     });
-    signal.addEventListener('abort', onAbort, { once: true });
     const timer = setTimeout(onAbort, lifetimeMs);
+    signal.addEventListener('abort', onAbort, { once: true });
     if (signal.aborted) stop();
     else {
       try {

@@ -24,6 +24,7 @@ consuming the attempt, so an unrelated local request cannot by itself invalidate
 a valid callback. A state-matching request is single-use even if the transaction
 rejects its other fields; the existing transaction independently validates the
 whole callback and is the only component that can advance authorization.
+The listener does not interpret a handler return value as authentication success.
 
 Both browser replies are fixed, non-reflecting text, with no-store, restrictive
 CSP, no-referrer, no-sniff and frame-denial headers. A 200 reply only tells the

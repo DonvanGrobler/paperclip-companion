@@ -332,6 +332,25 @@ it('closes a listener when cancellation races native startup', async () => {
   await vi.waitFor(() => expect(closed).toHaveBeenCalled(), { timeout: 3000 });
 });
 
+it('fails closed if cancellation fires while attaching the owner signal', async () => {
+  let aborted = false;
+  const signal = {
+    get aborted() {
+      return aborted;
+    },
+    addEventListener(event: string, handler: () => void) {
+      if (event === 'abort') {
+        aborted = true;
+        handler();
+      }
+    },
+    removeEventListener() {},
+  } as unknown as AbortSignal;
+  await expect(
+    startSiwcLoopbackListener(() => true, signal),
+  ).resolves.toBeNull();
+});
+
 it('destroys malformed and idle connections without consuming the callback', async () => {
   let server: http.Server | undefined;
   const original = http.createServer;
