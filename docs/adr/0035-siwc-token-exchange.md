@@ -55,7 +55,9 @@ ignore unrelated fields and bound primitive types/lengths. Missing access or
 refresh token, type or expiry becomes explicit null; missing scope becomes an
 empty scope, never the requested scope. Reject duplicate top-level JSON member
 names, including escaped spellings; nested extension values are ignored. Return a
-frozen projection only to the trusted main caller. This projection is **unverified data**, not a
+frozen projection only to the trusted main caller. The OAuth bearer token type is
+case-insensitive and is canonicalized to `Bearer` for the existing transaction;
+other token types are not promoted to bearer. This projection is **unverified data**, not a
 validated identity, session or inference permission: ADR 0029's transaction
 still validates grant semantics and returned scopes, and the separately trusted
 verifier must establish signature, issuer, audience, nonce and identity before

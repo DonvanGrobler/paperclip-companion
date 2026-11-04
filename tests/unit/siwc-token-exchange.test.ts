@@ -157,6 +157,17 @@ it('projects absent access and refresh tokens as explicit null for identity-only
   ).toBe(true);
   expect(result.id_token === tokens.id && result.scope === 'openid').toBe(true);
 });
+it.each(['bearer', 'BEARER', 'bEaReR'])(
+  'normalizes the case-insensitive OAuth bearer type %s',
+  async (type) => {
+    native({
+      bytes: Buffer.from(JSON.stringify({ ...reply(), token_type: type })),
+    });
+    expect((await exchangeSiwcCode(request(), signal())).token_type).toBe(
+      'Bearer',
+    );
+  },
+);
 it('does not send an invalid request or expose raw errors', async () => {
   const h = native();
   await expect(
@@ -819,6 +830,24 @@ it('does not treat a structurally projected but invalid grant as verified author
     });
     expect(t.order).toEqual(['launch', 'retain', 'exchange']);
     expect(h.send).toHaveBeenCalledTimes(1);
+  } finally {
+    t.owner.dispose();
+  }
+});
+it('allows a valid lowercase bearer response through the normalized transaction contract', async () => {
+  native({
+    bytes: Buffer.from(JSON.stringify({ ...reply(), token_type: 'bearer' })),
+  });
+  const t = transaction();
+  try {
+    const pending = t.owner.begin({ redirectUri, account: null });
+    t.callback();
+    expect(await pending).toEqual({
+      status: 'authenticated',
+      inferenceAllowed: true,
+    });
+    expect(t.order).toContain('verify');
+    expect(t.order).toContain('commit');
   } finally {
     t.owner.dispose();
   }

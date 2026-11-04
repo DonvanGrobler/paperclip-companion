@@ -127,7 +127,7 @@ function normalized(value: unknown): Readonly<SiwcNormalizedGrant> | null {
     access_token: access,
     refresh_token: refresh,
     id_token: id,
-    token_type: type,
+    token_type: type?.toLowerCase() === 'bearer' ? 'Bearer' : type,
     expires_in: expiry,
     scope,
   });
