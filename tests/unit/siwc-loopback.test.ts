@@ -359,7 +359,9 @@ it('destroys malformed and idle connections without consuming the callback', asy
 
   const malformed = net.createConnection({ host: '127.0.0.1', port });
   malformed.on('error', () => {});
-  const ended = once(malformed, 'close');
+  const ended = new Promise<void>((resolve) =>
+    malformed.once('close', resolve),
+  );
   malformed.write('INVALID REQUEST\r\n\r\n');
   await ended;
   const duplicate = net.createConnection({ host: '127.0.0.1', port });
@@ -368,7 +370,9 @@ it('destroys malformed and idle connections without consuming the callback', asy
   duplicate.on('data', (chunk: Buffer) => {
     reply += chunk.toString('utf8');
   });
-  const duplicateEnded = once(duplicate, 'close');
+  const duplicateEnded = new Promise<void>((resolve) =>
+    duplicate.once('close', resolve),
+  );
   duplicate.write(
     `GET /auth/callback?state=${state} HTTP/1.1\r\nHost: 127.0.0.1:${port}\r\nHost: evil.invalid\r\nConnection: close\r\n\r\n`,
   );
