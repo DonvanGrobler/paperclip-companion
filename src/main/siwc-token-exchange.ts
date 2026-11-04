@@ -14,6 +14,7 @@ export interface SiwcNormalizedGrant {
 const ENDPOINT = 'https://auth.openai.com/api/accounts/oauth/token';
 const RESOURCE = 'https://api.openai.com/v1';
 const RESPONSE_LIMIT = 98304;
+const TIMEOUT_MS = 10000;
 const FAILURE = 'SIWC_EXCHANGE_FAILED';
 
 function text(value: unknown, max: number): value is string {
@@ -156,7 +157,7 @@ export async function exchangeSiwcCode(
     redirect_uri: value.redirectUri,
     resource: RESOURCE,
   }).toString();
-  const deadline = performance.now() + 10000;
+  const deadline = performance.now() + TIMEOUT_MS;
   const expired = () => performance.now() >= deadline;
   return new Promise((resolve, reject) => {
     let done = false;
@@ -173,7 +174,7 @@ export async function exchangeSiwcCode(
       else reject(new Error(FAILURE));
     };
     const stop = () => finish(null);
-    const timer = setTimeout(stop, 10000);
+    const timer = setTimeout(stop, TIMEOUT_MS);
     signal.addEventListener('abort', stop, { once: true });
     try {
       if (signal.aborted || expired()) {
