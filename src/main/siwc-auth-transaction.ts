@@ -49,6 +49,11 @@ export interface SiwcPreparedCredentials {
 export interface SiwcAuthHooks {
   hostId: string;
   openAuthorization: (url: string, signal: AbortSignal) => Promise<void>;
+  /** Synchronous durable nonsecret registration retention before code exchange. */
+  retainRegistration: (
+    registration: Readonly<{ hostId: string; clientId: string }>,
+    signal: AbortSignal,
+  ) => boolean;
   exchange: (
     request: Readonly<SiwcCodeExchange>,
     signal: AbortSignal,
@@ -72,6 +77,7 @@ export type SiwcAuthFailure =
   | 'authorization-denied'
   | 'authorization-failed'
   | 'browser-failed'
+  | 'registration-commit-failed'
   | 'exchange-failed'
   | 'invalid-grant'
   | 'verification-failed'
@@ -106,15 +112,21 @@ const isClientId = (value: unknown): value is string =>
 function dataRecord(
   value: unknown,
   keys: readonly string[],
+  optionalKeys: readonly string[] = [],
 ): Record<string, unknown> | null {
   try {
     if (!value || typeof value !== 'object' || Array.isArray(value))
       return null;
     const prototype = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) return null;
-    if (Reflect.ownKeys(value).length !== keys.length) return null;
+    const ownKeys = Reflect.ownKeys(value);
+    const fields = [
+      ...keys,
+      ...optionalKeys.filter((key) => ownKeys.includes(key)),
+    ];
+    if (ownKeys.length !== fields.length) return null;
     const result: Record<string, unknown> = {};
-    for (const key of keys) {
+    for (const key of fields) {
       const descriptor = Object.getOwnPropertyDescriptor(value, key);
       if (!descriptor || !Object.hasOwn(descriptor, 'value')) return null;
       result[key] = descriptor.value;
@@ -127,9 +139,11 @@ function dataRecord(
 interface Context {
   redirectUri: string;
   account: Readonly<SiwcAccount> | null;
+  clientId: string | null;
+  idTokenHint: string | null;
 }
 function parseContext(value: unknown): Context | null {
-  const data = dataRecord(value, ['redirectUri', 'account']);
+  const data = dataRecord(value, ['redirectUri', 'account'], ['registration']);
   if (!data || typeof data.redirectUri !== 'string') return null;
   const port = /^http:\/\/127\.0\.0\.1:([1-9][0-9]{0,4})\/auth\/callback$/.exec(
     data.redirectUri,
@@ -155,9 +169,44 @@ function parseContext(value: unknown): Context | null {
       subject: selected.subject,
     };
   }
+  let clientId = account?.clientId ?? null;
+  let idTokenHint: string | null = null;
+  if (Object.hasOwn(data, 'registration')) {
+    const registration = dataRecord(data.registration, [
+      'clientId',
+      'idTokenHint',
+    ]);
+    if (
+      !registration ||
+      !isClientId(registration.clientId) ||
+      (account && registration.clientId !== account.clientId)
+    )
+      return null;
+    clientId = registration.clientId;
+    if (registration.idTokenHint !== null) {
+      const hint = dataRecord(registration.idTokenHint, [
+        'issuer',
+        'subject',
+        'clientId',
+        'idToken',
+      ]);
+      if (
+        !account ||
+        !hint ||
+        hint.issuer !== account.issuer ||
+        hint.subject !== account.subject ||
+        hint.clientId !== clientId ||
+        !boundedText(hint.idToken, 16384)
+      )
+        return null;
+      idTokenHint = hint.idToken;
+    }
+  }
   return {
     redirectUri: data.redirectUri,
     account: account && Object.freeze(account),
+    clientId,
+    idTokenHint,
   };
 }
 interface Proof {
@@ -222,11 +271,11 @@ function parseCallback(
     return 'invalid-callback';
   const code = params.get('code');
   const returnedId = params.get('client_id');
-  const clientId = returnedId ?? context.account?.clientId;
+  const clientId = returnedId ?? context.clientId;
   if (
     !boundedText(code, 4096) ||
     !isClientId(clientId) ||
-    (context.account && context.account.clientId !== clientId)
+    (context.clientId !== null && context.clientId !== clientId)
   )
     return 'invalid-callback';
   return { code, clientId };
@@ -333,6 +382,7 @@ interface Active {
 export function createSiwcAuthTransaction({
   hostId,
   openAuthorization,
+  retainRegistration,
   exchange,
   verifyIdentity,
   prepareCredentials,
@@ -341,6 +391,7 @@ export function createSiwcAuthTransaction({
   if (
     typeof hostId !== 'string' ||
     !/^[A-Za-z0-9._:-]{1,128}$/.test(hostId) ||
+    typeof retainRegistration !== 'function' ||
     !Number.isInteger(timeoutMs) ||
     timeoutMs < 1 ||
     timeoutMs > 300000
@@ -437,7 +488,7 @@ export function createSiwcAuthTransaction({
             work.proof = { state: fresh(), nonce: fresh(), verifier: fresh() };
             const url = new URL(`${ISSUER}/api/accounts/authorize`);
             url.search = new URLSearchParams({
-              client_id: context.account?.clientId ?? BOOTSTRAP,
+              client_id: context.clientId ?? BOOTSTRAP,
               ext_agent_host_id: hostId,
               response_type: 'code',
               redirect_uri: context.redirectUri,
@@ -450,8 +501,10 @@ export function createSiwcAuthTransaction({
                 .update(work.proof.verifier)
                 .digest('base64url'),
             }).toString();
-            if (!context.account)
+            if (context.clientId === null)
               url.searchParams.set('agent_name_hint', 'Paperclip Companion');
+            if (context.idTokenHint !== null)
+              url.searchParams.set('id_token_hint', context.idTokenHint);
             await openAuthorization(url.href, work.controller.signal);
             if (!alive(work)) return;
             await received;
@@ -459,6 +512,16 @@ export function createSiwcAuthTransaction({
             const callback = work.callback!;
             const proof = work.proof!;
             work.callback = null;
+            phase = 'registration-commit-failed';
+            const retained = retainRegistration(
+              Object.freeze({ hostId, clientId: callback.clientId }),
+              work.controller.signal,
+            );
+            if (!alive(work)) return;
+            if (retained !== true) {
+              work.finish(stopped('registration-commit-failed'));
+              return;
+            }
             phase = 'exchange-failed';
             const response = await exchange(
               Object.freeze({

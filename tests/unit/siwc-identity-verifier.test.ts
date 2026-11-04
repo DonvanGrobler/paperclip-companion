@@ -142,6 +142,7 @@ it('composes real signature verification with the transaction before fake creden
   let installs = 0;
   const transaction = createSiwcAuthTransaction({
     hostId: 'synthetic-host',
+    retainRegistration: () => true, // Explicit metadata fake; no durability claim.
     async openAuthorization(url) {
       authorize = new URL(url);
     },
@@ -621,6 +622,7 @@ it.each(['signature', 'nonce'] as const)(
     let prepares = 0;
     const transaction = createSiwcAuthTransaction({
       hostId: 'synthetic-host',
+      retainRegistration: () => true,
       async openAuthorization(value) {
         url = new URL(value);
       },
