@@ -854,6 +854,113 @@ function validGrant(
     ...change,
   };
 }
+
+it('does not extend the access lifetime by the time spent exchanging the code', async () => {
+  vi.useFakeTimers();
+  const exchanged = deferred<unknown>();
+  const h = harness({ exchange: () => exchanged.promise });
+  try {
+    const start = Date.now();
+    const pending = h.owner.begin(input());
+    h.callback();
+    await flush();
+    await vi.advanceTimersByTimeAsync(5000);
+    exchanged.resolve(validGrant(h));
+    expect((await pending).status).toBe('authenticated');
+    expect(h.installed?.expiresAt).toBe(start + 3600 * 1000);
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('rejects a grant already expired during exchange before identity or storage work', async () => {
+  vi.useFakeTimers();
+  const exchanged = deferred<unknown>();
+  const h = harness({ exchange: () => exchanged.promise });
+  try {
+    const pending = h.owner.begin(input());
+    h.callback();
+    await flush();
+    await vi.advanceTimersByTimeAsync(5000);
+    exchanged.resolve(validGrant(h, { expires_in: 2 }));
+    expect(await pending).toEqual({
+      status: 'stopped',
+      reason: 'invalid-grant',
+    });
+    expect(h.counts.verify + h.counts.prepare + h.counts.commit).toBe(0);
+  } finally {
+    h.owner.dispose();
+  }
+});
+it('uses elapsed monotonic time if the wall clock is moved backwards during exchange', async () => {
+  vi.useFakeTimers();
+  const exchanged = deferred<unknown>();
+  const h = harness({ exchange: () => exchanged.promise });
+  try {
+    const start = Date.now();
+    const pending = h.owner.begin(input());
+    h.callback();
+    await flush();
+    await vi.advanceTimersByTimeAsync(5000);
+    vi.setSystemTime(start - 60000);
+    exchanged.resolve(validGrant(h, { expires_in: 2 }));
+    expect(await pending).toEqual({
+      status: 'stopped',
+      reason: 'invalid-grant',
+    });
+    expect(h.counts.verify + h.counts.prepare + h.counts.commit).toBe(0);
+  } finally {
+    h.owner.dispose();
+  }
+});
+it.each(['verification', 'preparation'] as const)(
+  'rechecks monotonic expiry after %s despite wall-clock rollback',
+  async (phase) => {
+    vi.useFakeTimers();
+    const wait = deferred<void>();
+    let commits = 0;
+    let discards = 0;
+    const h = harness({
+      async verifyIdentity(_token, expected) {
+        if (phase === 'verification') await wait.promise;
+        return verified(expected);
+      },
+      async prepareCredentials() {
+        if (phase === 'preparation') await wait.promise;
+        return {
+          commit() {
+            commits++;
+            return true;
+          },
+          discard() {
+            discards++;
+          },
+        };
+      },
+    });
+    try {
+      const start = Date.now();
+      h.setGrant(validGrant(h, { expires_in: 2 }));
+      const pending = h.owner.begin(input());
+      h.callback();
+      await flush();
+      await vi.advanceTimersByTimeAsync(3000);
+      vi.setSystemTime(start - 60000);
+      wait.resolve();
+      expect(await pending).toEqual({
+        status: 'stopped',
+        reason:
+          phase === 'verification'
+            ? 'invalid-grant'
+            : 'protected-commit-failed',
+      });
+      expect(commits).toBe(0);
+      expect(discards).toBe(phase === 'preparation' ? 1 : 0);
+    } finally {
+      wait.resolve();
+      h.owner.dispose();
+    }
+  },
+);
 function verified(
   expected: SiwcIdentityExpectation,
   change: Record<string, unknown> = {},

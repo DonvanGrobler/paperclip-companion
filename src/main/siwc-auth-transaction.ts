@@ -280,7 +280,7 @@ function parseCallback(
     return 'invalid-callback';
   return { code, clientId };
 }
-function parseGrant(value: unknown) {
+function parseGrant(value: unknown, exchangeStartedAt: number) {
   const data = dataRecord(value, [
     'access_token',
     'refresh_token',
@@ -327,7 +327,7 @@ function parseGrant(value: unknown) {
     expiresAt:
       data.access_token === null
         ? null
-        : Date.now() + (data.expires_in as number) * 1000,
+        : exchangeStartedAt + (data.expires_in as number) * 1000,
   };
 }
 function parseIdentity(
@@ -523,6 +523,10 @@ export function createSiwcAuthTransaction({
               return;
             }
             phase = 'exchange-failed';
+            // A response's lifetime begins no earlier than this request. Include
+            // transit time and guard active work against wall-clock rollback.
+            const exchangeStartedMonotonic = performance.now();
+            const exchangeStartedAt = Date.now();
             const response = await exchange(
               Object.freeze({
                 endpoint: `${ISSUER}/api/accounts/oauth/token`,
@@ -535,9 +539,18 @@ export function createSiwcAuthTransaction({
               work.controller.signal,
             );
             if (!alive(work)) return;
-            const grant = parseGrant(response);
+            const grant = parseGrant(response, exchangeStartedAt);
             if (!alive(work)) return;
             if (!grant) {
+              work.finish(stopped('invalid-grant'));
+              return;
+            }
+            const expired = () =>
+              grant.expiresAt !== null &&
+              (grant.expiresAt <= Date.now() ||
+                performance.now() - exchangeStartedMonotonic >=
+                  grant.expiresAt - exchangeStartedAt);
+            if (expired()) {
               work.finish(stopped('invalid-grant'));
               return;
             }
@@ -564,7 +577,7 @@ export function createSiwcAuthTransaction({
               work.finish(stopped('verification-failed'));
               return;
             }
-            if (grant.expiresAt !== null && grant.expiresAt <= Date.now()) {
+            if (expired()) {
               work.finish(stopped('invalid-grant'));
               return;
             }
@@ -592,10 +605,7 @@ export function createSiwcAuthTransaction({
             );
             prepared = preparedRecord(candidate); // Inspect late staging only so it can be discarded.
             if (!alive(work)) return;
-            if (
-              !prepared ||
-              (grant.expiresAt !== null && grant.expiresAt <= Date.now())
-            ) {
+            if (!prepared || expired()) {
               work.finish(stopped('protected-commit-failed'));
               return;
             }
